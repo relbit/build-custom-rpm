@@ -1,0 +1,223 @@
+#!/bin/bash
+
+NAME="${1:-"php53"}"
+VERSION="${2:-"5.3.28"}"
+RELEASE=${3:-"1"}
+PHP_FILE=${4:-"php-5.3.28.tar.bz2"}
+shift 4
+
+SPEC=php-$VERSION.spec
+
+sed -e "s/PVERSION/$VERSION/g" \
+    -e "s/PNAME/$NAME/g" \
+    -e "s/PRELEASE/$RELEASE/g" \
+    -e "s/PHPTAR/$PHP_FILE/g" \
+    > $SPEC <<'EOF'
+%global phpname		PNAME
+%global phpver		PVERSION
+%global phprel		PRELEASE
+%global peardir		%{_datadir}/pear
+
+Summary: PHP %{phpver}
+Name: %{phpname}
+Version: %{phpver}
+Release: %{phprel}
+Group: Networking/Daemons
+Source0: PHPTAR
+EOF
+
+i=1;
+for file in $(echo $@); do
+	echo "Source${i}: $file" >> $SPEC
+	i=$(($i +1))
+done
+
+cat >> $SPEC <<'EOF'
+License: PHP License
+BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires: rpm-build, libxml2-devel, openssl-devel, bzip2-devel, curl-devel, enchant-devel, libjpeg-devel, libpng-devel, libXpm-devel, freetype-devel, t1lib-devel, gmp-devel, libc-client-devel, libicu-devel, openldap-devel, libmcrypt-devel, mysql-devel, freetds-devel, postgresql-devel, aspell-devel, libedit-devel, net-snmp-devel, libtidy-devel, libxslt-devel, libmhash-devel, libtool-ltdl-devel, re2c, lemon
+%description
+PHP Language
+
+%package common
+Summary: PHP %{phpver} - CLI and CGI
+Obsoletes:  php3
+Provides: %{phpname}-common, php-common, %{phpname}-cli, php-cli, %{phpname}-bcmath, php-bcmath, %{phpname}-bz2, php-bz2, %{phpname}-calendar, php-calendar, %{phpname}-Core, php-Core, %{phpname}-ctype, php-ctype, %{phpname}-curl, php-curl, %{phpname}-date, php-date, %{phpname}-dba, php-dba, %{phpname}-dom, php-dom, %{phpname}-enchant, php-enchant, %{phpname}-ereg, php-ereg, %{phpname}-exif, php-exif, %{phpname}-fileinfo, php-fileinfo, %{phpname}-filter, php-filter, %{phpname}-ftp, php-ftp, %{phpname}-gd, php-gd, %{phpname}-gettext, php-gettext, %{phpname}-gmp, php-gmp, %{phpname}-hash, php-hash, %{phpname}-iconv, php-iconv, %{phpname}-imap, php-imap, %{phpname}-intl, php-intl, %{phpname}-json, php-json, %{phpname}-ldap, php-ldap, %{phpname}-libxml, php-libxml, %{phpname}-mbstring, php-mbstring, %{phpname}-mcrypt, php-mcrypt, %{phpname}-mhash, php-mhash, %{phpname}-mysql, php-mysql, %{phpname}-mysqli, php-mysqli, %{phpname}-mysqlnd, php-mysqlnd, %{phpname}-openssl, php-openssl, %{phpname}-pcntl, php-pcntl, %{phpname}-pcre, php-pcre, %{phpname}-PDO, php-PDO, %{phpname}-pdo_dblib, php-pdo_dblib, %{phpname}-pdo_mysql, php-pdo_mysql, %{phpname}-pdo_pgsql, php-pdo_pgsql, %{phpname}-pdo_sqlite, php-pdo_sqlite, %{phpname}-pgsql, php-pgsql, %{phpname}-Phar, php-Phar, %{phpname}-posix, php-posix, %{phpname}-pspell, php-pspell, %{phpname}-readline, php-readline, %{phpname}-Reflection, php-Reflection, %{phpname}-session, php-session, %{phpname}-shmop, php-shmop, %{phpname}-SimpleXML, php-SimpleXML, %{phpname}-snmp, php-snmp, %{phpname}-soap, php-soap, %{phpname}-sockets, php-sockets, %{phpname}-SPL, php-SPL, %{phpname}-SQLite, php-SQLite, %{phpname}-sqlite3, php-sqlite3, %{phpname}-standard, php-standard, %{phpname}-sysvmsg, php-sysvmsg, %{phpname}-sysvsem, php-sysvsem, %{phpname}-sysvshm, php-sysvshm, %{phpname}-tidy, php-tidy, %{phpname}-tokenizer, php-tokenizer, %{phpname}-wddx, php-wddx, %{phpname}-xml, php-xml, %{phpname}-xmlreader, php-xmlreader, %{phpname}-xmlrpc, php-xmlrpc, %{phpname}-xmlwriter, php-xmlwriter, %{phpname}-xsl, php-xsl, %{phpname}-zip, php-zip, %{phpname}-zlib, php-zlib
+%description common
+PHP %{phpver} - CLI + CGI
+
+%package fpm
+Requires: php-common >= %{phpver}
+Summary: PHP %{phpver} - FPM
+Provides: php-fpm, %{phpname}-fpm
+%description fpm
+PHP %{phpver} - FPM
+
+%package devel
+BuildArch: noarch
+Requires: php-common >= %{phpver}
+Summary: PHP %{phpver} - devel
+Provides: php-devel, %{phpname}-devel
+%description devel
+PHP %{phpver} - devel
+
+
+%prep
+%setup -D -q -n php-%{phpver}
+[ ! -d build-cgi ] && mkdir build-cgi
+
+%build
+echo %{_builddir}
+pwd
+
+function do_configure() {
+	ln -sf ../configure ./configure
+%configure --prefix=/usr \
+		--with-zend-vm=GOTO \
+		--cache-file=../config.cache \
+		--with-libdir=%{_lib} \
+		--with-config-file-path=%{_sysconfdir} \
+		--with-config-file-scan-dir=%{_sysconfdir}/php.d \
+		--disable-debug \
+		--with-pic \
+		--disable-rpath \
+		--with-bz2 \
+		--with-freetype-dir=%{_prefix} \
+		--with-png-dir=%{_prefix} \
+		--with-xpm-dir=%{_prefix} \
+		--enable-gd-native-ttf \
+		--with-t1lib=%{_prefix} \
+		--without-gdbm \
+		--with-gettext \
+		--with-gmp \
+		--with-iconv \
+		--with-openssl \
+		--with-zlib \
+		--with-layout=GNU \
+		--enable-exif \
+		--enable-ftp \
+		--enable-sockets \
+		--with-kerberos \
+		--enable-shmop \
+		--enable-calendar \
+		--enable-xml \
+		--with-mhash \
+		--with-imap --with-imap-ssl \
+		--enable-mbstring \
+		--enable-mbregex \
+		--with-gd \
+		--enable-bcmath \
+		--enable-dba  \
+		--with-xmlrpc \
+		--with-ldap --with-ldap-sasl \
+		--enable-mysqlnd \
+		--with-mysql \
+		--with-mysqli \
+		--enable-dom \
+		--with-pgsql \
+		--enable-wddx \
+		--with-snmp \
+		--enable-soap \
+		--with-xsl \
+		--enable-xmlreader --enable-xmlwriter \
+		--with-curl \
+		--enable-pdo \
+		--with-pdo-mysql \
+		--with-pdo-pgsql \
+		--with-pdo-sqlite \
+		--with-pdo-dblib \
+		--with-sqlite3 \
+		--enable-json \
+		--enable-zip \
+		--without-readline \
+		--with-libedit \
+		--with-pspell \
+		--enable-phar \
+		--with-mcrypt \
+		--with-tidy \
+		--enable-sysvmsg --enable-sysvshm --enable-sysvsem \
+		--enable-posix \
+		--enable-fileinfo \
+		--enable-intl \
+		--with-enchant \
+		--enable-intl \
+		--with-jpeg-dir=%{_prefix} \
+		$*
+}
+
+function do_make {
+	make %{?_smp_mflags} CFLAGS="%{optflags}"
+}
+
+PEAR_INSTALLDIR="%{peardir}"; export PEAR_INSTALLDIR
+
+test -f config.cache && rm -f config.cache
+
+pushd build-cgi
+	do_configure 		--enable-fastcgi --enable-pcntl
+	do_make
+popd
+
+[ ! -d build-fpm ] && cp -af build-cgi build-fpm
+
+pushd build-fpm
+	do_configure 		--enable-fpm     --enable-pcntl --disable-cli
+	do_make
+popd
+
+%install
+
+export INSTALL_ROOT=%{buildroot}; make install -C build-cgi
+export INSTALL_ROOT=%{buildroot}; make install -C build-fpm
+
+%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/init.d
+%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/php.d
+%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/php-fpm.d
+%{__mkdir_p} ${RPM_BUILD_ROOT}/var/log/php-fpm
+
+%{__install} -m0755 %{SOURCE1} ${RPM_BUILD_ROOT}/etc/init.d/php-fpm
+%{__install} -m0755 %{SOURCE2} ${RPM_BUILD_ROOT}/etc/php.ini
+%{__install} -m0755 %{SOURCE3} ${RPM_BUILD_ROOT}/etc/php-fpm.conf
+
+rm -Rf %{buildroot}/.*[^..]
+rm -Rf %{buildroot}/usr/share/fpm
+rm -Rf %{buildroot}/usr/share/pear/.*[^..]
+
+%clean
+
+%changelog
+
+%check
+
+%files common
+%defattr(-,root,root)
+%exclude %{_includedir}/*
+%exclude %{_sbindir}/php-fpm
+%exclude %{_libdir}/build/*
+%exclude %{_mandir}/man8/*
+%exclude %{_sbindir}/php-fpm
+%exclude %{_sysconfdir}/php-fpm.conf.default
+%config(noreplace) %{_sysconfdir}/pear.conf
+%dir %{_sysconfdir}/php.d
+%config(noreplace) %{_sysconfdir}/php.ini
+%{_bindir}/*
+%{_libdir}/*
+%{_mandir}/*
+%{peardir}/*
+
+%files fpm
+%defattr(-,root,root)
+%dir %{_sysconfdir}/php-fpm.d
+%config(noreplace) %{_sysconfdir}/php-fpm.conf
+%{_sysconfdir}/init.d/php-fpm
+%{_sbindir}/php-fpm
+%{_mandir}/man8/php-fpm.8.gz
+%dir %{_localstatedir}/log/php-fpm
+
+%files devel
+%defattr(-,root,root)
+%{_includedir}/*
+%{_libdir}/build/*
+
+
+EOF
