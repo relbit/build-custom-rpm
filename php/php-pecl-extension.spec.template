@@ -1,36 +1,16 @@
-#!/bin/bash
-
-NAME="${1:-"php53"}"
-EXTNAME="${2:-"memcache"}"
-VERSION="${3:-"3.0.5"}"
-RELEASE=${4:-"1"}
-EXT_FILE=${5:-"memcache-3.0.5.tgz"}
-
-TAR=$EXTNAME-$VERSION.tgz
-SPEC=$NAME-pecl-$EXTNAME-$VERSION.spec
-
-PHP_SAPI_VERSION=`phpize -v | awk '$1 ~ /PHP/ { print $4; }'`
-
-sed -e "s/PVERSION/$VERSION/g" \
-    -e "s/PEXTNAME/$EXTNAME/g" \
-    -e "s/PNAME/$NAME/g" \
-    -e "s/SAPIVER/$PHP_SAPI_VERSION/g" \
-    -e "s/PRELEASE/$RELEASE/g" \
-    -e "s/PEXTFILE/$EXT_FILE/g" \
-    > $SPEC <<'EOF'
-%global phpname		PNAME
-%global extname		PEXTNAME
-%global	extver		PVERSION
-%global	extrel		PRELEASE
+%global phpname		PHP_NAME
+%global extname		EXT_NAME
+%global	extver		EXT_VER
+%global	extrel		RPM_RELEASE
+%global sapiver		SAPI_VER
 %global peardir		%{_datadir}/pear
-%global sapiver		SAPIVER
 
 Summary: PHP PECL - %{extname} %{extver}
 Name: %{phpname}-pecl-%{extname}
 Version: %{extver}
 Release: %{extrel}
 Group: Networking/Daemons
-Source0: PEXTFILE
+Source0: EXT_NAME-EXT_VER.tgz
 License: PHP License
 BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires: %{phpname}-devel
@@ -59,7 +39,7 @@ module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`.so"
 
 %{__mkdir_p} ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/
 %{__mkdir_p} ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/
-%{__install} -m0644  extension.ini	  ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/PEXTNAME.ini
+%{__install} -m0644  extension.ini	  ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/%{extname}.ini
 %{__install} -m0644 modules/$module_name ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/$module_name
 
 %clean
@@ -74,4 +54,3 @@ module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`.so"
 %config(noreplace) %{_sysconfdir}/php.d/%{extname}.ini
 %{_libdir}/%{sapiver}/*
 
-EOF

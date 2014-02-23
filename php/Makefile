@@ -44,36 +44,47 @@ help:
 	echo -e "\tor just to build defaults:"
 	echo -e "\t\tmake"
 
-download: download_php download_ext
+download: download_php download_ioncube $(foreach ext,$(EXTENSIONS),$(ext).tgz)
 
 download_php:
 	@test ! -f $(PHP_FILE) && \
 		echo "Downloading $(PHP_FILE)..." && \
 		curl -s -L $(PHP_URL) -o $(PHP_FILE) || true
+	@echo "Done downloading $(PHP_FILE)"
 
-download_ext:
+download_ioncube:
 	@test ! -f $(IONCUBE_FILE) && \
 		echo "Downloading $(IONCUBE_FILE)..." && \
 		curl -s -L $(IONCUBE_URL) -o $(IONCUBE_FILE) || true
+	@echo "Done downloading $(IONCUBE_FILE)"
+download_suhosin:
 	@test "$(HAVE_SUHOSIN)" == "1" && \
 		test ! -f $(SUHOSIN_FILE) && \
 		echo "Downloading $(SUHOSIN_FILE)..." && \
 		curl -s -L $(SUHOSIN_URL) -o $(SUHOSIN_FILE) || true
-	@for extension in $(EXTENSIONS); do \
-		if [ ! -f $${extension}.tgz ]; then \
-			pecl -q download $$extension; \
-			echo "$${extension}.tgz" >> .pecl_downloaded; \
-		fi; \
-	done
+	@echo "Done downloading $(SUHOSIN_FILE)"
+
+$(foreach ext,$(EXTENSIONS),$(ext).tgz): download_suhosin
+	@if [ ! -f $@ ]; then \
+		echo "Downloading $@..."; \
+		pecl -q download `echo $@ | sed -e "s/\.tgz//g"` > /dev/null; \
+		echo "$@" >> .pecl_downloaded; \
+	fi; 
+	@echo "Done downloading $@"
 
 spec: spec_php spec_ext
 
 spec_php:
-	@echo "Make PHP $(PHP_VERSION) spec file..."
+	@echo "Make PHP $(PHP_VERSION) spec..."
 	@yum install rpm-build yum-utils -y -q > /dev/null 2>&1
-	@./makespec-php $(PHP_NAME) $(PHP_VERSION) $(RPM_RELEASE) $(PHP_FILE) $(EXTRA_FILES)
+	@sed -e "s/PHP_FILE/$(PHP_FILE)/g" \
+	     -e "s/PHP_NAME/$(PHP_NAME)/g" \
+	     -e "s/PHP_VERSION/$(PHP_VERSION)/g" \
+	     -e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
+		php.spec.template > php-$(PHP_VERSION).spec
+	@echo "Done making PHP $(PHP_VERSION) spec"
 
-build_php: download spec_php prereq
+build_php: download_php spec_php prereq
 	@echo "Building PHP $(PHP_VERSION) packages..."
 	@test ! -d $(sourcedir) && mkdir -p $(sourcedir) || test -d $(sourcedir)
 	@for file in $(files_to_copy); do \
@@ -81,35 +92,57 @@ build_php: download spec_php prereq
 	done
 	@test -f $(rpmdir)/x86_64/$(PHP_NAME)-common-$(PHP_VERSION)-$(RPM_RELEASE).x86_64.rpm || \
 		rpmbuild --quiet -ba php-$(PHP_VERSION).spec 2> /dev/null
+	@echo "Done building PHP $(PHP_VERSION) packages"
 
 inst_php: build_php
-	@echo "Installing just built PHP..." && \
+	@echo -en "Installing just built PHP..." && \
 	test "`rpm -qa | grep php`" != "" && yum remove -y -q `rpm -qa | grep php` || true
 	@test -f $(rpmdir)/x86_64/$(PHP_NAME)-common-$(PHP_VERSION)-$(RPM_RELEASE).x86_64.rpm
 	@test -f $(rpmdir)/noarch/$(PHP_NAME)-devel-$(PHP_VERSION)-$(RPM_RELEASE).noarch.rpm
 	@yum localinstall -y -q \
 		$(rpmdir)/x86_64/$(PHP_NAME)-common-$(PHP_VERSION)-$(RPM_RELEASE).x86_64.rpm \
 		$(rpmdir)/noarch/$(PHP_NAME)-devel-$(PHP_VERSION)-$(RPM_RELEASE).noarch.rpm > /dev/null 2>&1
+	@echo -en "ok.\n"
 	
-spec_ext: inst_php
-	@for ext in $(EXTENSIONS); do \
-		echo "Make $$ext spec file..."; \
-		ext_name=`echo $$ext | sed 's/-[^\-]*$$//g'`; \
-		ext_ver=`echo $$ext | sed "s/$${ext_name}-//g"`; \
-		./makespec-pecl $(PHP_NAME) $${ext_name} $${ext_ver} $(RPM_RELEASE) $${ext}.tgz; \
-	done
-	@./makespec-ioncube $(PHP_NAME) $(IONCUBE_VERSION)  $(RPM_RELEASE) $(IONCUBE_FILE)
+spec_ext: $(foreach ext,$(EXTENSIONS),$(ext).spec) spec_ioncube
+$(foreach ext,$(EXTENSIONS),$(ext).spec): inst_php
+	@echo "Make $@..." && \
+	sapi_ver=`phpize -v | awk '$$1 ~ /PHP/ { print $$4; }'` && \
+	ext_name=`echo $@ | sed -e 's/\.spec//g' \
+				-e 's/-[^\-]*$$//g'` && \
+	ext_ver=` echo $@ | sed -e 's/\.spec//g' \
+				-e "s/$${ext_name}-//g"` && \
+	sed -e "s/PHP_NAME/$(PHP_NAME)/g" \
+	    -e "s/EXT_NAME/$${ext_name}/g" \
+	    -e "s/EXT_VER/$${ext_ver}/g" \
+	    -e "s/SAPI_VER/$${sapi_ver}/g" \
+	    -e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
+		php-pecl-extension.spec.template > $(PHP_NAME)-pecl-$@
 
-build_ext: spec_ext prereq
-	@echo "Building extensions..."
-	@for ext in $(EXTENSIONS); do \
-		echo $$ext...; \
-		test -f $(rpmdir)/x86_64/$(PHP_NAME)-pecl-$$ext-$(RPM_RELEASE).x86_64.rpm || \
-			rpmbuild -ba --quiet $(PHP_NAME)-pecl-$${ext}.spec 2> /dev/null; \
-	done
-	@test -f $(rpmdir)/x86_64/$(PHP_NAME)-extra-ioncube-$(IONCUBE_VERSION)-$(RPM_RELEASE).x86_64.rpm || \
-		echo "ioncube-$(IONCUBE_VERSION)..." && \
-		rpmbuild -ba --quiet $(PHP_NAME)-extra-ioncube.spec 2> /dev/null
+spec_ioncube: inst_php
+	@echo "Make $(PHP_NAME)-extra-ioncube.spec..."
+	@sed -e "s/PHP_NAME/$(PHP_NAME)/g" \
+	     -e "s/IONCUBE_VERSION/$(IONCUBE_VERSION)/g" \
+	     -e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
+		php-extra-ioncube.spec.template > $(PHP_NAME)-extra-ioncube.spec
+	@echo "Done making $(PHP_NAME)-extra-ioncube.spec"
+                
+
+build_ext: $(foreach ext,$(EXTENSIONS),$(ext).build) build_ioncube
+$(foreach ext,$(EXTENSIONS),$(ext).build): download spec_ext
+	@ext=`echo $@ | sed -e "s/\.build//g"` && \
+	[ -f $(rpmdir)/x86_64/$(PHP_NAME)-pecl-$$ext-$(RPM_RELEASE).x86_64.rpm ] || \
+	echo "Build $$ext..." && \
+	cp -f $${ext}.tgz $(sourcedir)/ && \
+	rpmbuild -ba --quiet $(PHP_NAME)-pecl-$${ext}.spec 2> /dev/null && \
+	echo "Done building $$ext"
+
+build_ioncube: inst_php spec_ioncube download_ioncube
+	@[ -f $(rpmdir)/x86_64/$(PHP_NAME)-extra-ioncube-$(IONCUBE_VERSION)-$(RPM_RELEASE).x86_64.rpm ] || \
+	echo "Build ioncube-$(IONCUBE_VERSION)..." && \
+	cp -f $(IONCUBE_FILE) $(sourcedir)/ && \
+	rpmbuild -ba --quiet $(PHP_NAME)-extra-ioncube.spec 2> /dev/null && \
+	echo "Done building ioncube-$(IONCUBE_VERSION)"
 
 build: build_ext
 
