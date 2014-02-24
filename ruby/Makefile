@@ -41,7 +41,7 @@ build: spec prereq download
 	@echo "Building Ruby $(RUBY_VERSION) packages..."
 	@[ ! -d $(sourcedir) ] && mkdir -p $(sourcedir) || [ -d $(sourcedir) ]
 	@cp -f $(RUBY_FILE) $(sourcedir)/
-	@rpmbuild -ba --quiet ruby-2.0.spec
+	@rpmbuild -ba --quiet ruby-2.0.spec 2> /dev/null
 
 ship: build
 	@echo -en "Shipping:\n`find $(rpmdir) | sort`\n"
