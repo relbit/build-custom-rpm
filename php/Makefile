@@ -7,7 +7,7 @@ PHP_VERSION 	= 5.3.28
 PHP_FILE 	= php-$(PHP_VERSION).tar.bz2
 PHP_URL  	= http://cz1.php.net/get/$(PHP_FILE)/from/this/mirror 
 
-EXTRA_FILES 	= etc-init.d-php-fpm 	etc-php-fpm.conf 	etc-php.ini
+EXTRA_FILES 	= etc-init.d-php-fpm 	etc-php.ini		etc-php-fpm.conf
 EXTENSIONS  	= APC-3.1.13		memcache-3.0.8		turbo_realpath-1.3
 
 ifeq ($(PHP_NAME), php53)
@@ -25,10 +25,7 @@ IONCUBE_URL  	= http://downloads3.ioncube.com/loader_downloads/$(IONCUBE_FILE)
 # Makefile internals from here on:
 
 files_to_copy 	= $(PHP_FILE)		$(SUHOSIN_FILE) 	$(IONCUBE_FILE) \
-		  $(foreach ext,$(EXTENSIONS),"$(ext).tgz ") \
 		  $(foreach file,$(EXTRA_FILES),"$(file) ")
-
-pecl_downloaded =
 
 builddir	= ~/rpmbuild
 rpmdir		= ~/rpmbuild/RPMS
@@ -57,6 +54,7 @@ download_ioncube:
 		echo "Downloading $(IONCUBE_FILE)..." && \
 		curl -s -L $(IONCUBE_URL) -o $(IONCUBE_FILE) || true
 	@echo "Done downloading $(IONCUBE_FILE)"
+
 download_suhosin:
 	@test "$(HAVE_SUHOSIN)" == "1" && \
 		test ! -f $(SUHOSIN_FILE) && \
@@ -91,7 +89,7 @@ build_php: download_php spec_php prereq
 		cp $$file $(sourcedir)/; \
 	done
 	@test -f $(rpmdir)/x86_64/$(PHP_NAME)-common-$(PHP_VERSION)-$(RPM_RELEASE).x86_64.rpm || \
-		rpmbuild --quiet -ba php-$(PHP_VERSION).spec 2> /dev/null
+		rpmbuild -ba php-$(PHP_VERSION).spec --quiet 2> /dev/null
 	@echo "Done building PHP $(PHP_VERSION) packages"
 
 inst_php: build_php
@@ -120,10 +118,12 @@ $(foreach ext,$(EXTENSIONS),$(ext).spec): inst_php
 		php-pecl-extension.spec.template > $(PHP_NAME)-pecl-$@
 
 spec_ioncube: inst_php
-	@echo "Make $(PHP_NAME)-extra-ioncube.spec..."
-	@sed -e "s/PHP_NAME/$(PHP_NAME)/g" \
-	     -e "s/IONCUBE_VERSION/$(IONCUBE_VERSION)/g" \
-	     -e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
+	@echo "Make $(PHP_NAME)-extra-ioncube.spec..." && \
+	sapi_ver=`phpize -v | awk '$$1 ~ /PHP/ { print $$4; }'` && \
+	sed -e "s/PHP_NAME/$(PHP_NAME)/g" \
+	    -e "s/IONCUBE_VERSION/$(IONCUBE_VERSION)/g" \
+	    -e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
+	    -e "s/SAPI_VER/$${sapi_ver}/g" \
 		php-extra-ioncube.spec.template > $(PHP_NAME)-extra-ioncube.spec
 	@echo "Done making $(PHP_NAME)-extra-ioncube.spec"
                 
@@ -134,7 +134,7 @@ $(foreach ext,$(EXTENSIONS),$(ext).build): download spec_ext
 	[ -f $(rpmdir)/x86_64/$(PHP_NAME)-pecl-$$ext-$(RPM_RELEASE).x86_64.rpm ] || \
 	echo "Build $$ext..." && \
 	cp -f $${ext}.tgz $(sourcedir)/ && \
-	rpmbuild -ba --quiet $(PHP_NAME)-pecl-$${ext}.spec 2> /dev/null && \
+	rpmbuild -ba $(PHP_NAME)-pecl-$${ext}.spec --quiet 2> /dev/null && \
 	echo "Done building $$ext"
 
 build_ioncube: inst_php spec_ioncube download_ioncube
@@ -149,7 +149,7 @@ build: build_ext
 ship: build_ext
 	@echo -en "Shipping:\n`find $(rpmdir) | sort`\n"
 	@mkdir -p $(RPM_DIR) || true
-	@cp -rf `find $(rpmdir)` $(RPM_DIR)/
+	@cp -r $(rpmdir)/* $(RPM_DIR)/
 	
 prereq:
 	@echo "Make sure prerequisites installed..."
