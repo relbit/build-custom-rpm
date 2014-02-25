@@ -146,12 +146,12 @@ popd
 export INSTALL_ROOT=%{buildroot}; make install -C build-cgi
 export INSTALL_ROOT=%{buildroot}; make install -C build-fpm
 
-%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/init.d
+%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/rc.d/init.d
 %{__mkdir_p} ${RPM_BUILD_ROOT}/etc/php.d
 %{__mkdir_p} ${RPM_BUILD_ROOT}/etc/php-fpm.d
 %{__mkdir_p} ${RPM_BUILD_ROOT}/var/log/php-fpm
 
-%{__install} -m0755 %{_sourcedir}/etc-init.d-php-fpm ${RPM_BUILD_ROOT}/etc/init.d/php-fpm
+%{__install} -m0755 %{_sourcedir}/etc-init.d-php-fpm ${RPM_BUILD_ROOT}/etc/rc.d/init.d/php-fpm
 %{__install} -m0755 %{_sourcedir}/etc-php.ini ${RPM_BUILD_ROOT}/etc/php.ini
 %{__install} -m0755 %{_sourcedir}/etc-php-fpm.conf ${RPM_BUILD_ROOT}/etc/php-fpm.conf
 
@@ -185,7 +185,7 @@ rm -Rf %{buildroot}/usr/share/pear/.*[^..]
 %defattr(-,root,root)
 %dir %{_sysconfdir}/php-fpm.d
 %config(noreplace) %{_sysconfdir}/php-fpm.conf
-%{_sysconfdir}/init.d/php-fpm
+%{_sysconfdir}/rc.d/init.d/php-fpm
 %{_sbindir}/php-fpm
 %{_mandir}/man8/php-fpm.8.gz
 %dir %{_localstatedir}/log/php-fpm
@@ -195,4 +195,12 @@ rm -Rf %{buildroot}/usr/share/pear/.*[^..]
 %{_includedir}/*
 %{_libdir}/build/*
 
+%post fpm
+/sbin/chkconfig --add php-fpm
+
+%preun fpm
+if [ $1 = 0 ]; then
+  /sbin/service php-fpm stop >/dev/null 2>&1 || :
+  /sbin/chkconfig --del php-fpm
+fi
 
