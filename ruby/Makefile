@@ -35,6 +35,7 @@ spec:
 	@echo "Make Ruby $(RUBY_VERSION) spec file..."
 	@sed -e "s/RUBY_VERSION/$(RUBY_VERSION)/g" \
 	    -e "s/RUBY_PATCHLEVEL/$(RUBY_PATCHLEVEL)/g" \
+	    -e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
 	    ruby-2.0.spec.template > ruby-2.0.spec
 
 build: spec prereq download
