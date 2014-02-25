@@ -47,7 +47,7 @@ build: spec prereq download
 ship: build
 	@echo -en "Shipping:\n`find $(rpmdir) | sort`\n"
 	@mkdir -p $(RPM_DIR) || true
-	@cp -rf `find $(rpmdir)` $(RPM_DIR)/
+	@cp -r $(rpmdir)/* $(RPM_DIR)/
 	
 prereq:
 	@echo "Make sure prerequisites installed..."
