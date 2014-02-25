@@ -42,8 +42,7 @@ build: spec prereq download
 	@echo "Building HAProxy $(HAPROXY_VERSION) packages..."
 	@[ ! -d $(sourcedir) ] && mkdir -p $(sourcedir) || [ -d $(sourcedir) ]
 	@cp -f $(HAPROXY_FILE) $(sourcedir)/
-	rpmbuild -ba haproxy-$(HAPROXY_VERSION)-$(HAPROXY_DEV).spec
-#	@rpmbuild -ba --quiet haproxy-$(HAPROXY_VERSION)-$(HAPROXY_DEV).spec 2> /dev/null
+	@rpmbuild -ba --quiet haproxy-$(HAPROXY_VERSION)-$(HAPROXY_DEV).spec 2> /dev/null
 
 ship: build
 	@echo -en "Shipping:\n`find $(rpmdir) | sort`\n"
