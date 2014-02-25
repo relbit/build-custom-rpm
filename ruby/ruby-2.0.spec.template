@@ -44,11 +44,11 @@ export CFLAGS="$RPM_OPT_FLAGS -Wall -fno-strict-aliasing"
   --includedir=%{_includedir}/ruby \
   --libdir=%{_libdir}
 
-make %{?_smp_mflags}
+make -j1
 
 %install
 # installing binaries ...
-make install DESTDIR=$RPM_BUILD_ROOT
+make -j1 install DESTDIR=$RPM_BUILD_ROOT
 
 #we don't want to keep the src directory
 rm -rf $RPM_BUILD_ROOT/usr/src
