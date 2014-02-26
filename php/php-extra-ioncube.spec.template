@@ -26,7 +26,7 @@ PHP Language - IONCube Loader
 
 %build
 cat > ioncube.ini <<EOINI
-extension=ioncube.so
+zend_loader=ioncube.so
 EOINI
 
 
