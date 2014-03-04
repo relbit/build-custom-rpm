@@ -45,8 +45,14 @@ build: spec prereq download
 	@for file in $(files_to_copy); do \
 		cp -f $$file $(sourcedir)/; \
 	done
-	#rpmbuild -ba mongodb-$(MONGODB_VERSION).spec
-	@rpmbuild -ba --quiet mongodb-$(MONGODB_VERSION).spec 2> /dev/null
+	@[ -f $(RPM_DIR)/x86_64/mongo-$(MONGODB_VERSION)-$(RPM_RELEASE).el6.x86_64.rpm ] || \
+		rpmbuild -ba --quiet mongodb-$(MONGODB_VERSION).spec 2> /dev/null
+
+install: ship
+	@echo "Installing MongoDB $(MONGODB_VERSION) packages..."
+	@yum install -y -q $(RPM_DIR)/x86_64/mongo-$(MONGODB_VERSION)-$(RPM_RELEASE).* \
+		$(RPM_DIR)/x86_64/mongo-server-$(MONGODB_VERSION)-$(RPM_RELEASE).* 2> /dev/null || \
+		[ "`rpm -qa | grep mongo-server`" != "" ]
 
 ship: build
 	@echo -en "Shipping:\n`find $(rpmdir) | sort`\n"
