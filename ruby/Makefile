@@ -2,7 +2,7 @@ RPM_DIR 	= rpms/
 RPM_RELEASE 	= 1
 
 RUBY_VERSION	= 2.0.0
-RUBY_PATCHLEVEL = p353
+RUBY_PATCHLEVEL = p451
 
 RUBY_FILE	= ruby-$(RUBY_VERSION)-$(RUBY_PATCHLEVEL).tar.gz
 RUBY_URL	= http://cache.ruby-lang.org/pub/ruby/2.0/$(RUBY_FILE)
