@@ -8,7 +8,8 @@ PHP_FILE 	= php-$(PHP_VERSION).tar.bz2
 PHP_URL  	= http://cz1.php.net/get/$(PHP_FILE)/from/this/mirror 
 
 EXTRA_FILES 	= etc-init.d-php-fpm 	etc-php.ini		etc-php-fpm.conf
-EXTENSIONS  	= APC-3.1.13		memcache-3.0.8		turbo_realpath-1.3
+EXTENSIONS  	= APC-3.1.13		memcache-3.0.8		turbo_realpath-1.3 \
+		  mongo-1.4.5
 
 ifeq ($(PHP_NAME), php53)
   HAVE_SUHOSIN	= 1
