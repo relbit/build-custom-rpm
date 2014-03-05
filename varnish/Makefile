@@ -21,7 +21,7 @@ all: ship
 help:
 	@echo -e "Varnish Build Suite for Evia 2"
 	@echo -e "\texample usage:"
-	@echo -e "\t\tmake VARNISH_VERSION=1.5 VARNISH_DEV=dev22"
+	@echo -e "\t\tmake VARNISH_VERSION=3.0.4"
 	@echo -e "\tor just to build defaults:"
 	@echo -e "\t\tmake"
 
