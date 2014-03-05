@@ -55,4 +55,4 @@ make clean
 # License
 These files are released under the Apache License 2.0
 
-(c) Relbit, Ltd. 2014
+(c) RELBIT, LLC 2014
