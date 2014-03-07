@@ -1,12 +1,12 @@
-RPM_NAME        = httpd
-RPM_SUMMARY     = Apache HTTP Server
+RPM_NAME        = apr-util
+RPM_SUMMARY     = Apache Portable Runtime library utilities
 RPM_LICENSE     = Apache Software License
-RPM_VERSION     = 2.4.7
+RPM_VERSION     = 1.5.3
 RPM_RELEASE     = 1
 RPM_SOURCE0     = $(RPM_NAME)-$(RPM_VERSION).tar.gz
-RPM_URL         = http://tux.rainside.sk/apache//httpd/$(RPM_SOURCE0)
+RPM_URL         = http://tux.rainside.sk/apache//apr/$(RPM_SOURCE0)
 
-RPM_BUILD_DEP   = apr-util 
+RPM_BUILD_DEP	= apr install_default
 
 # Makefile internals from here on:
 

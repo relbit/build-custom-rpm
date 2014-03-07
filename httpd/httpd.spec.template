@@ -1,19 +1,20 @@
-%define version HTTPD_VERSION
-%define relver  RPM_RELEASE
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
 
 %define contentdir /var/www
 %define suexec_caller apache
 %define mmn 20120211
 
-Summary: Apache HTTP Server
-Name: httpd
-Version: 2.4.7
-Release: 1
-URL: http://httpd.apache.org/
-Vendor: Apache Software Foundation
-Source0: HTTPD_FILE
-License: Apache License, Version 2.0
-Group: System Environment/Daemons
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: autoconf, perl, pkgconfig, findutils
 BuildRequires: zlib-devel, libselinux-devel, libuuid-devel
