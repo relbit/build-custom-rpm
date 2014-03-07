@@ -1,0 +1,24 @@
+ifeq ($(VERBOSE),1)
+V               =
+SILENTOUT       =
+SILENTYUM       =
+SILENTCURL      =
+SILENTRPMBUILD  =
+else
+V               = @
+SILENTOUT       = > /dev/null 2>&1
+SILENTYUM       = -q
+SILENTCURL      = -s
+SILENTRPMBUILD  = --quiet
+GNUMAKEFLAGS	= --no-print-directory
+endif
+
+YUM_INSTALL     = yum install $(SILENTYUM) -y
+YUM_LINSTALL    = yum localinstall $(SILENTYUM) -y --nogpgcheck
+YUM_GINSTALL    = yum groupinstall $(SILENTYUM) -y
+YUM_REMOVE      = yum remove # Never silence this for your own sake!
+YUM_BUILDDEP    = yum-builddep $(SILENTYUM) -y
+RPMBUILD        = rpmbuild -ba $(SILENTRPMBUILD) $(SPECFILE)
+UNLOCK          = rm -f .make_lock
+
+

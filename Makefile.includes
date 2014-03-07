@@ -1,4 +1,7 @@
+SHELL := /bin/bash
+
 -include $(ROOTDIR)Makefile.settings
+-include $(ROOTDIR)Makefile.includes_general
 
 ifndef RPM_NAME
 $(error RPM_NAME not set)
@@ -49,31 +52,11 @@ specdir		= ~/rpmbuild/SPECS
 
 SPECFILE	= $(specdir)/$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec
 
-ifeq ($(VERBOSE),1)
-V		=
-SILENTOUT	= 
-SILENTYUM	=
-SILENTCURL	=
-SILENTRPMBUILD	= 
-else
-V 		= @
-SILENTOUT	= > /dev/null 2>&1
-SILENTYUM	= -q
-SILENTCURL	= -s
-SILENTRPMBUILD	= --quiet
-endif
 
-YUM_INSTALL	= yum install $(SILENTYUM) -y
-YUM_LINSTALL	= yum localinstall $(SILENTYUM) -y --nogpgcheck
-YUM_GINSTALL	= yum groupinstall $(SILENTYUM) -y
-YUM_REMOVE	= yum remove # Never silence this for your own sake!
-YUM_BUILDDEP	= yum-builddep $(SILENTYUM) -y
-RPMBUILD	= rpmbuild -ba $(SILENTRPMBUILD) $(SPECFILE)
-
-build_default: copy prereq
+build_default: copy prereq dependencies
 	$Vecho "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
-	$V[ ! -d $(sourcedir) ] && mkdir -p $(sourcedir) || [ -d $(sourcedir) ]
 	$V$(RPMBUILD) $(SILENTOUT)
+	$V$(UNLOCK)
 
 prereq: spec
 	$Vecho "[Prereq] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
@@ -115,19 +98,20 @@ copy: download
 		cp -f $$file $(sourcedir)/; \
 	done
 
-download:
+download: lock
 	$V[ ! -f $(RPM_SOURCE0) ] && \
 		echo "[Download] $(RPM_SOURCE0)" && \
 		curl $(SILENTCURL) -L $(RPM_URL) \
 			-o $(RPM_SOURCE0) $(SILENTOUT) || \
 	[ -f $(RPM_SOURCE0) ]
 
-install_default:
+install_default: build_default lock
 	$Vrpms="`find $(rpmdir) -type f -name "*$(RPM_NAME)*rpm" ! -name "*debuginfo*"`"; \
-	echo "[Install] $$rpms"; \
+	echo "[Install] $(RPM_NAME)"; \
 	$(YUM_LINSTALL) $$rpms $(SILENTOUT)
+	$V$(UNLOCK)
 
-uninstall_default:
+uninstall_default: lock
 	$Vrpms="`pushd $(rpmdir) > /dev/null; find . -type f -name "*$(RPM_NAME)*rpm" ! -name "*debuginfo*" | sed \
 					-e 's/\.rpm$$//g' \
 					-e 's/\.\/x86_64\///g' \
@@ -136,10 +120,69 @@ uninstall_default:
 					; popd > /dev/null`"; \
 	echo "[REMOVE] $$rpms"; \
 	$(YUM_REMOVE) $$rpms
+	$V$(UNLOCK)
 
 
-clean:
+ifdef RPM_BUILD_DEP
+define newline
+
+
+endef
+$(eval \
+$(subst #,$(newline),\
+$(shell deps=1; \
+	function makedep { \
+		echo -en 'function makedep {' \
+		echo -en 'echo "[Dependency] '; \
+		echo JCQ= | base64 -d; \
+		echo -en '1 for package $(RPM_NAME)";'; \
+		echo -en 'cd $(ROOTDIR)'; \
+		echo JCQ= | base64 -d; \
+		echo -en '1 && $(MAKE) '; \
+		echo JCQ= | base64 -d; \
+		echo -en '2 $(MFLAGS);'; \
+		echo -en '};'; \
+		echo -en  'makedep '; \
+	}; \
+	echo $(RPM_BUILD_DEP) | \
+	sed -e 's/;/\n/g' | \
+	while read line; do \
+		echo -en "dependency.$${deps}:\
+				#\t+$V`makedep` $${line};"; \
+		echo -en "#"; \
+		let "deps+=1"; \
+	done; \
+	echo -en "#dependencies: lock "; \
+	for i in `seq 1 $${deps}`; do \
+		echo -en "dependency.$$i "; \
+	done; \
+	echo -en "#";)))
+else
+dependencies:
+	$V:;
+endif
+
+clean: lock
 	$Vecho "[Clean] $(RPM_NAME)"
 	$Vrm -f $(SPECFILE)
 	$Vrm -f $(foreach f,$(files_to_copy),$(sourcedir)/$f)
 	$Vrm -f $(RPM_SOURCE0)
+lock:
+	$V[ ! -d $(builddir) ] && mkdir -p $(builddir); \
+	[ ! -d $(rpmdir) ] && mkdir -p $(rpmdir); \
+	[ ! -d $(sourcedir) ] && mkdir -p $(sourcedir); \
+	[ ! -d $(specdir) ] && mkdir -p $(specdir); \
+	spins=0; \
+	[ -f .make_lock ] && [ ! -f /proc/`cat .make_lock`/mountstats ] && $(UNLOCK); \
+	while [ -f .make_lock ]; do \
+		let "spins+=1"; \
+		echo "[Lock] $(RPM_NAME) spin $$spins"; \
+		sleep 1; \
+		[ -f .make_lock ] && [ ! -f /proc/`cat .make_lock`/mountstats ] && $(UNLOCK); \
+	done; \
+	echo $$PPID > .make_lock
+	$Vecho "[Lock] $(RPM_NAME)"
+
+
+unlock:
+	$V$(UNLOCK)
