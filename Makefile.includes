@@ -54,7 +54,7 @@ SPECFILE	= $(specdir)/$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec
 build_default: copy prereq dependencies
 	$Vecho "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
 	$Vpushd $(rpmdir) $(SILENTOUT) && \
-	if [ "`find . -type f -name \"$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE)*x86_64.rpm\" -mtime -1 `" != "" ]; then \
+	if [ "`find . -type f -name \"$(RPM_NAME)*$(RPM_VERSION)-$(RPM_RELEASE)*x86_64.rpm\" -mtime -1 `" != "" ]; then \
 		echo "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE) comleted using cached version"; \
 	else \
 		$(RPMBUILD) $(SILENTOUT) && \
@@ -106,11 +106,15 @@ $(copy_files):	  download
 	[ -f $(sourcedir)/$$file ]
 
 download_default: lock
+ifndef RPM_SOURCE_ISLOCAL
 	$V[ ! -f $(RPM_SOURCE0) ] && \
 		echo "[Download] $(RPM_SOURCE0)" && \
 		curl $(SILENTCURL) -L $(RPM_URL) \
 			-o $(RPM_SOURCE0) $(SILENTOUT) || \
 	[ -f $(RPM_SOURCE0) ]
+else
+	$Vecho "[Local] $(RPM_SOURCE0)"
+endif
 
 install_default: build lock
 	$Vrpms="`find $(rpmdir) -type f -name "*$(RPM_NAME)*rpm" ! -name "*debuginfo*"`"; \
@@ -137,12 +141,12 @@ $(subst #,$(newline),\
 $(shell deps=1; \
 	function makedep { \
 		echo -en 'function makedep {' \
-		echo -en 'echo "[Dependency] '; \
+		echo -en '"[Dependency] '; \
 		echo JCQ= | base64 -d; \
-		echo -en '1 for package $(RPM_NAME)";'; \
+		echo -en '1 for package $(RPM_NAME)\n";'; \
 		echo -en 'cd $(ROOTDIR)'; \
 		echo JCQ= | base64 -d; \
-		echo -en '1 && $(MAKE) '; \
+		echo -en '1 && $(MAKE) $(SILENTMAKE) '; \
 		echo JCQ= | base64 -d; \
 		echo -en '2 $(MFLAGS);'; \
 		echo -en '};'; \
@@ -165,11 +169,17 @@ else
 dependencies:
 	$V:;
 endif
+
+#WAIT_FOR_DEPENDENCIES = $Vwhile [ "`rpm -qa | grep -P \"^$(RPM_NAME)\"`" == "" ]; do sleep 5; done;
+
 clean_default: lock
 	$Vecho "[Clean] $(RPM_NAME)"
 	$Vrm -f $(SPECFILE)
 	$Vrm -f $(foreach f,$(files_to_copy),$(sourcedir)/$f)
+ifndef RPM_SOURCE_ISLOCAL
 	$Vrm -f $(RPM_SOURCE0)
+endif
+
 lock:
 	$V[ ! -d $(builddir) ] && mkdir -p $(builddir); \
 	[ ! -d $(rpmdir) ] && mkdir -p $(rpmdir); \
@@ -184,7 +194,7 @@ lock:
 		[ -f .make_lock ] && [ ! -f /proc/`cat .make_lock`/mountstats ] && $(UNLOCK); \
 	done; \
 	echo $$PPID > .make_lock
-	$Vecho "[Lock] $(RPM_NAME)"
+	$Vecho -en "\n[Lock] $(RPM_NAME)\n"
 
 
 unlock:

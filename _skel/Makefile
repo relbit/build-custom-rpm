@@ -15,6 +15,9 @@ RPM_SOURCE0     = $(RPM_SOURCEN0).tar.gz
 #  - If it's the usual case:
 # RPM_SOURCE0     = $(RPM_NAME)-$(RPM_VERSION).tar.gz
 
+# Uncomment this if you don't want to download and clean the source file
+# RPM_SOURCE_ISLOCAL = 1
+
 # Where to download the source package:
 RPM_URL         = http://somelocation/$(RPM_SOURCE0)
 

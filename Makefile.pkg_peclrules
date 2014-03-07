@@ -1,0 +1,36 @@
+ifeq ($(VERBOSE),1)
+SILENTPECL      =
+else
+SILENTPECL      = -q
+endif
+
+ready: dependencies
+	$(WAIT_FOR_DEPENDENCIES)
+
+all: build_default
+prereq: prereq_default
+download: download_pecl
+copy: download_pecl
+spec: spec_pecl
+build: build_default
+install: install_default
+uninstall: uninstall_default
+clean: clean_default
+
+download_pecl: ready lock
+	$V[ ! -f $(RPM_SOURCE0) ] && \
+	echo "[Download] $(RPM_SOURCE0)" && \
+	pecl $(SILENTPECL) download $(RPM_SOURCE0) $(SILENTOUT) || \
+	[ -f $(RPM_SOURCE0) ]
+	$V[ ! -f $(sourcedir)/$(RPM_SOURCE0) ] && \
+	echo "[Copy] $(RPM_SOURCE0)" && \
+	cp -f $(RPM_SOURCE0) $(sourcedir) || \
+	[ -f $(sourcedir)/$(RPM_SOURCE0) ]
+	
+spec_pecl: ready spec_default
+	$Vsapiver="`phpize -v | awk '$$1 ~ /PHP/ { print $$4; }'`" && \
+	sed	-e "s/RPM_PHP_NAME/$(RPM_PHP_NAME)/g" \
+		-e "s/RPM_EXT_NAME/$(RPM_EXT_NAME)/g" \
+		-e "s/SAPI_VER/$(SAPI_VER)/g" \
+		-i $(SPECFILE)
+
