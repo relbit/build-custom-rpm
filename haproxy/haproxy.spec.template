@@ -7,7 +7,7 @@ Release:        %{relver}%{?dist}
 License:        RPM_LICENSE
 URL:            RPM_URL
 Source0:        RPM_SOURCE0
-%define         source0n        RPM_SOURCEN0xN
+%define         sourcen0        RPM_SOURCEN0
 Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
 
