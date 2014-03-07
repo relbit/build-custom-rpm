@@ -104,8 +104,8 @@ ifdef RPM_VERSIONMIN
 	$Vsed	-e "s/RPM_VERSIONMIN/$(RPM_VERSIONMIN)/g" \
 		-i $(SPECFILE)
 endif
-ifdef RPM_SOURCE0N
-	$Vsed	-e "s/RPM_SOURCE0N/$(RPM_SOURCE0N)/g" \
+ifdef RPM_SOURCEN0
+	$Vsed	-e "s/RPM_SOURCEN0/$(RPM_SOURCEN0)/g" \
 		-i $(SPECFILE)
 endif
 
