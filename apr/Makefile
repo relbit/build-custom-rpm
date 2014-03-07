@@ -13,6 +13,4 @@ RPM_URL         = http://tux.rainside.sk/apache//apr/$(RPM_SOURCE0)
 
 ROOTDIR = $(shell pwd)/../
 include $(ROOTDIR)Makefile.includes
-
-all: build_default
-
+include $(ROOTDIR)Makefile.pkg_stdrules

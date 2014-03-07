@@ -12,6 +12,4 @@ RPM_URL         = http://haproxy.1wt.eu/download/1.5/src/devel/$(RPM_SOURCE0)
 
 ROOTDIR = $(shell pwd)/../
 include $(ROOTDIR)Makefile.includes
-
-all: build_default
-
+include $(ROOTDIR)Makefile.pkg_stdrules

@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 -include $(ROOTDIR)Makefile.settings
--include $(ROOTDIR)Makefile.includes_general
+include $(ROOTDIR)Makefile.includes_general
 
 ifndef RPM_NAME
 $(error RPM_NAME not set)
@@ -32,6 +32,10 @@ $(error RPM_URL not set)
 RPM_URL         = http://source.not.set.in.package.Makefile/
 endif
 
+ifndef RPM_SPECFILE
+RPM_SPECFILE	= $(RPM_NAME).spec.template
+endif
+
 ifndef RPM_PACKAGER
 RPM_PACKAGER	= RPM_PACKAGER not set in Makefile.settings
 $(warning $(RPM_PACKAGER))
@@ -52,19 +56,18 @@ specdir		= ~/rpmbuild/SPECS
 
 SPECFILE	= $(specdir)/$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec
 
-
 build_default: copy prereq dependencies
 	$Vecho "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
 	$V$(RPMBUILD) $(SILENTOUT)
 	$V$(UNLOCK)
 
-prereq: spec
+prereq_default: spec
 	$Vecho "[Prereq] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
 	$V$(YUM_GINSTALL) development $(SILENTOUT)
 	$V$(YUM_INSTALL) rpm-build yum-utils $(SILENTOUT)
 	$V$(YUM_BUILDDEP) $(SPECFILE) $(SILENTOUT) || true
 
-spec:
+spec_default:
 	$Vecho "[Make] $(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec"
 	$Vsed	-e "s/RPM_NAME/$(RPM_NAME)/g" \
 		-e "s/RPM_SUMMARY/$(RPM_SUMMARY)/g" \
@@ -74,7 +77,7 @@ spec:
 		-e "s/RPM_DISTRIBUTION/$(RPM_DISTRIBUTION)/g" \
 		-e "s/RPM_PACKAGER/$(RPM_PACKAGER)/g" \
 		-e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
-		$(RPM_NAME).spec.template > $(SPECFILE)
+		$(RPM_SPECFILE) > $(SPECFILE)
 ifdef RPM_VERSIO2
 	$Vsed	-e "s/RPM_VERSIO2/$(RPM_VERSIO2)/g" \
 		-i $(SPECFILE)
@@ -92,20 +95,22 @@ ifdef RPM_SOURCEN0
 		-i $(SPECFILE)
 endif
 
-copy: download
-	$Vfor file in $(files_to_copy); do \
-		echo "[Copy] $$file"; \
-		cp -f $$file $(sourcedir)/; \
-	done
+copy_files	= $(addprefix copy_,$(files_to_copy))
+copy_default:	  $(copy_files)
+$(copy_files):	  download
+	$Vfile="`echo $@ | sed -e 's/^copy_//g'`" && \
+	echo "[Copy] $$file" && \
+	cp -f $$file $(sourcedir)/; \
+	[ -f $(sourcedir)/$$file ]
 
-download: lock
+download_default: lock
 	$V[ ! -f $(RPM_SOURCE0) ] && \
 		echo "[Download] $(RPM_SOURCE0)" && \
 		curl $(SILENTCURL) -L $(RPM_URL) \
 			-o $(RPM_SOURCE0) $(SILENTOUT) || \
 	[ -f $(RPM_SOURCE0) ]
 
-install_default: build_default lock
+install_default: build lock
 	$Vrpms="`find $(rpmdir) -type f -name "*$(RPM_NAME)*rpm" ! -name "*debuginfo*"`"; \
 	echo "[Install] $(RPM_NAME)"; \
 	$(YUM_LINSTALL) $$rpms $(SILENTOUT)
@@ -161,8 +166,7 @@ else
 dependencies:
 	$V:;
 endif
-
-clean: lock
+clean_default: lock
 	$Vecho "[Clean] $(RPM_NAME)"
 	$Vrm -f $(SPECFILE)
 	$Vrm -f $(foreach f,$(files_to_copy),$(sourcedir)/$f)

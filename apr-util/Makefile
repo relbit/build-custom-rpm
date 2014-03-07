@@ -12,6 +12,4 @@ RPM_BUILD_DEP	= apr install_default
 
 ROOTDIR = $(shell pwd)/../
 include $(ROOTDIR)Makefile.includes
-
-all: build_default
-
+include $(ROOTDIR)Makefile.pkg_stdrules

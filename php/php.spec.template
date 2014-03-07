@@ -1,45 +1,47 @@
-%global phpname		PHP_NAME
-%global phpver		PHP_VERSION
-%global phprel		RPM_RELEASE
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+%global phpname		RPM_NAME
 %global peardir		%{_datadir}/pear
 
-Summary: PHP %{phpver}
-Name: %{phpname}
-Version: %{phpver}
-Release: %{phprel}
-Group: Networking/Daemons
-Source0: PHP_FILE
-License: PHP License
 BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires: rpm-build, libxml2-devel, openssl-devel, bzip2-devel, curl-devel, enchant-devel, libjpeg-devel, libpng-devel, libXpm-devel, freetype-devel, t1lib-devel, gmp-devel, libc-client-devel, libicu-devel, openldap-devel, libmcrypt-devel, mysql-devel, freetds-devel, postgresql-devel, aspell-devel, libedit-devel, net-snmp-devel, libtidy-devel, libxslt-devel, libmhash-devel, libtool-ltdl-devel, re2c, lemon
 %description
 PHP Language
 
 %package common
-Summary: PHP %{phpver} - CLI and CGI
+Summary: PHP %{version} - CLI and CGI
 Obsoletes:  php3
 Provides: %{phpname}-common, php-common, %{phpname}-cli, php-cli, %{phpname}-bcmath, php-bcmath, %{phpname}-bz2, php-bz2, %{phpname}-calendar, php-calendar, %{phpname}-Core, php-Core, %{phpname}-ctype, php-ctype, %{phpname}-curl, php-curl, %{phpname}-date, php-date, %{phpname}-dba, php-dba, %{phpname}-dom, php-dom, %{phpname}-enchant, php-enchant, %{phpname}-ereg, php-ereg, %{phpname}-exif, php-exif, %{phpname}-fileinfo, php-fileinfo, %{phpname}-filter, php-filter, %{phpname}-ftp, php-ftp, %{phpname}-gd, php-gd, %{phpname}-gettext, php-gettext, %{phpname}-gmp, php-gmp, %{phpname}-hash, php-hash, %{phpname}-iconv, php-iconv, %{phpname}-imap, php-imap, %{phpname}-intl, php-intl, %{phpname}-json, php-json, %{phpname}-ldap, php-ldap, %{phpname}-libxml, php-libxml, %{phpname}-mbstring, php-mbstring, %{phpname}-mcrypt, php-mcrypt, %{phpname}-mhash, php-mhash, %{phpname}-mysql, php-mysql, %{phpname}-mysqli, php-mysqli, %{phpname}-mysqlnd, php-mysqlnd, %{phpname}-openssl, php-openssl, %{phpname}-pcntl, php-pcntl, %{phpname}-pcre, php-pcre, %{phpname}-PDO, php-PDO, %{phpname}-pdo_dblib, php-pdo_dblib, %{phpname}-pdo_mysql, php-pdo_mysql, %{phpname}-pdo_pgsql, php-pdo_pgsql, %{phpname}-pdo_sqlite, php-pdo_sqlite, %{phpname}-pgsql, php-pgsql, %{phpname}-Phar, php-Phar, %{phpname}-posix, php-posix, %{phpname}-pspell, php-pspell, %{phpname}-readline, php-readline, %{phpname}-Reflection, php-Reflection, %{phpname}-session, php-session, %{phpname}-shmop, php-shmop, %{phpname}-SimpleXML, php-SimpleXML, %{phpname}-snmp, php-snmp, %{phpname}-soap, php-soap, %{phpname}-sockets, php-sockets, %{phpname}-SPL, php-SPL, %{phpname}-SQLite, php-SQLite, %{phpname}-sqlite3, php-sqlite3, %{phpname}-standard, php-standard, %{phpname}-sysvmsg, php-sysvmsg, %{phpname}-sysvsem, php-sysvsem, %{phpname}-sysvshm, php-sysvshm, %{phpname}-tidy, php-tidy, %{phpname}-tokenizer, php-tokenizer, %{phpname}-wddx, php-wddx, %{phpname}-xml, php-xml, %{phpname}-xmlreader, php-xmlreader, %{phpname}-xmlrpc, php-xmlrpc, %{phpname}-xmlwriter, php-xmlwriter, %{phpname}-xsl, php-xsl, %{phpname}-zip, php-zip, %{phpname}-zlib, php-zlib
 %description common
-PHP %{phpver} - CLI + CGI
+PHP %{version} - CLI + CGI
 
 %package fpm
-Requires: php-common >= %{phpver}
-Summary: PHP %{phpver} - FPM
+Requires: php-common >= %{version}
+Summary: PHP %{version} - FPM
 Provides: php-fpm, %{phpname}-fpm
 %description fpm
-PHP %{phpver} - FPM
+PHP %{version} - FPM
 
 %package devel
 BuildArch: noarch
-Requires: php-common >= %{phpver}
-Summary: PHP %{phpver} - devel
+Requires: php-common >= %{version}
+Summary: PHP %{version} - devel
 Provides: php-devel, %{phpname}-devel
 %description devel
-PHP %{phpver} - devel
+PHP %{version} - devel
 
 
 %prep
-%setup -D -q -n php-%{phpver}
+%setup -D -q -n php-%{version}
 [ ! -d build-cgi ] && mkdir build-cgi
 
 %build

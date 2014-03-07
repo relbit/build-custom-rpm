@@ -46,8 +46,6 @@ Packager:       RPM_PACKAGER
 %bcond_without python3
 
 %define toplev_dirname %{name}_%{version_enc}
-URL: http://www.boost.org
-Group: System Environment/Libraries
 
 # From the version 13 of Fedora, the Boost libraries are delivered
 # with sonames equal to the Boost version (e.g., 1.41.0).
