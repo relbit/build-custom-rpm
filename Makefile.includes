@@ -58,7 +58,14 @@ SPECFILE	= $(specdir)/$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec
 
 build_default: copy prereq dependencies
 	$Vecho "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
-	$V$(RPMBUILD) $(SILENTOUT)
+	$Vpushd $(rpmdir) $(SILENTOUT) && \
+	if [ "`find . -type f -name \"$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE)*x86_64.rpm\" -mtime -1 `" != "" ]; then \
+		echo "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE) comleted using cached version"; \
+	else \
+		$(RPMBUILD) $(SILENTOUT) && \
+		echo "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE) completed"; \
+	fi && \
+	popd $(SILENTOUT)
 	$V$(UNLOCK)
 
 prereq_default: spec
