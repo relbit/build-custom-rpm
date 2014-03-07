@@ -1,15 +1,14 @@
-%define version VARNISH_VERSION
-%define relver  RPM_RELEASE
+Name: 		RPM_NAME
+Summary: 	RPM_SUMMARY
+Version: 	RPM_VERSION
+%define 	relver  	RPM_RELEASE
+Release: 	%{relver}%{?dist}
+License: 	RPM_LICENSE
+URL:		RPM_URL
+Source0:	RPM_SOURCE0
+Distribution:	RPM_DISTRIBUTION
+Packager:	RPM_PACKAGER
 
-Summary: High-performance HTTP accelerator
-Name: varnish
-Version: %{version}
-Release: %{relver}%{?dist}
-License: BSD
-Group: System Environment/Daemons
-URL: http://www.varnish-cache.org/
-#Source0: http://repo.varnish-cache.org/source/%{name}-%{version}.tar.gz
-Source0: %{name}-%{version}%{?v_rc:-%{v_rc}}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # To build from git, start with a make dist, see redhat/README.redhat 
 # You will need at least automake autoconf libtool python-docutils
@@ -124,25 +123,6 @@ tail -n +11 etc/default.vcl >> redhat/default.vcl
 rm -rf doc/sphinx/\=build/html/_sources
 mv doc/sphinx/\=build/html doc
 rm -rf doc/sphinx/\=build
-
-%check
-# rhel5 on ppc64 is just too strange
-%ifarch ppc64
-	%if 0%{?rhel} > 4
-		cp bin/varnishd/.libs/varnishd bin/varnishd/lt-varnishd
-	%endif
-%endif
-
-# The redhat ppc builders seem to have some ulimit problems?
-# These tests work on a rhel4 ppc/ppc64 instance outside the builders
-%ifarch ppc64 ppc
-	%if 0%{?rhel} == 4
-		rm bin/varnishtest/tests/c00031.vtc
-		rm bin/varnishtest/tests/r00387.vtc
-	%endif
-%endif
-
-make check LD_LIBRARY_PATH="../../lib/libvarnish/.libs:../../lib/libvarnishcompat/.libs:../../lib/libvarnishapi/.libs:../../lib/libvcl/.libs:../../lib/libvgz/.libs"
 
 %install
 rm -rf %{buildroot}
