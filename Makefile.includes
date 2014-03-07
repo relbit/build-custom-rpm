@@ -92,6 +92,22 @@ spec:
 		-e "s/RPM_PACKAGER/$(RPM_PACKAGER)/g" \
 		-e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
 		$(RPM_NAME).spec.template > $(SPECFILE)
+ifdef RPM_VERSION2
+	$Vsed	-e "s/RPM_VERSION2/$(RPM_VERSION2)/g" \
+		-i $(SPECFILE)
+endif
+ifdef RPM_VERSIONMAJ
+	$Vsed	-e "s/RPM_VERSIONMAJ/$(RPM_VERSIONMAJ)/g" \
+		-i $(SPECFILE)
+endif
+ifdef RPM_VERSIONMIN
+	$Vsed	-e "s/RPM_VERSIONMIN/$(RPM_VERSIONMIN)/g" \
+		-i $(SPECFILE)
+endif
+ifdef RPM_SOURCE0N
+	$Vsed	-e "s/RPM_SOURCE0N/$(RPM_SOURCE0N)/g" \
+		-i $(SPECFILE)
+endif
 
 copy: download
 	$Vfor file in $(files_to_copy); do \
