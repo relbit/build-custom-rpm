@@ -1,0 +1,129 @@
+-include $(ROOTDIR)Makefile.settings
+
+ifndef RPM_NAME
+$(error RPM_NAME not set)
+endif
+
+ifndef RPM_SUMMARY
+RPM_SUMMARY     = Summary not set in package Makefile
+endif
+
+ifndef RPM_LICENSE
+$(error RPM_LICENSE not set)
+endif
+
+ifndef RPM_VERSION
+$(error RPM_VERSION not set)
+endif
+
+ifndef RPM_RELEASE
+$(error RPM_RELEASE not set)
+endif
+
+ifndef RPM_SOURCE0
+$(error RPM_SOURCE0 not set)
+endif
+
+ifndef RPM_URL
+$(error RPM_URL not set)
+RPM_URL         = http://source.not.set.in.package.Makefile/
+endif
+
+ifndef RPM_PACKAGER
+RPM_PACKAGER	= RPM_PACKAGER not set in Makefile.settings
+$(warning $(RPM_PACKAGER))
+endif
+
+ifndef RPM_DISTRIBUTION
+RPM_DISTRIBUTION = $(shell head -n1 /etc/redhat-release)
+$(warning RPM_DISTRIBUTION not set in Makefile.settings,\
+	defaulting to $(RPM_DISTRIBUTION))
+endif
+
+files_to_copy   = $(RPM_SOURCE0) $(RPM_SOURCES)
+
+builddir	= ~/rpmbuild
+rpmdir		= ~/rpmbuild/RPMS
+sourcedir	= ~/rpmbuild/SOURCES
+specdir		= ~/rpmbuild/SPECS
+
+SPECFILE	= $(specdir)/$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec
+
+ifeq ($(VERBOSE),1)
+V		=
+SILENTOUT	= 
+SILENTYUM	=
+SILENTCURL	=
+SILENTRPMBUILD	= 
+else
+V 		= @
+SILENTOUT	= > /dev/null 2>&1
+SILENTYUM	= -q
+SILENTCURL	= -s
+SILENTRPMBUILD	= --quiet
+endif
+
+YUM_INSTALL	= yum install $(SILENTYUM) -y
+YUM_LINSTALL	= yum localinstall $(SILENTYUM) -y --nogpgcheck
+YUM_GINSTALL	= yum groupinstall $(SILENTYUM) -y
+YUM_REMOVE	= yum remove # Never silence this for your own sake!
+YUM_BUILDDEP	= yum-builddep $(SILENTYUM) -y
+RPMBUILD	= rpmbuild -ba $(SILENTRPMBUILD) $(SPECFILE)
+
+build_default: copy prereq
+	$Vecho "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
+	$V[ ! -d $(sourcedir) ] && mkdir -p $(sourcedir) || [ -d $(sourcedir) ]
+	$V$(RPMBUILD) $(SILENTOUT)
+
+prereq: spec
+	$Vecho "[Prereq] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
+	$V$(YUM_GINSTALL) development $(SILENTOUT)
+	$V$(YUM_INSTALL) rpm-build yum-utils $(SILENTOUT)
+	$V$(YUM_BUILDDEP) $(SPECFILE) $(SILENTOUT) || true
+
+spec:
+	$Vecho "[Make] $(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec"
+	$Vsed	-e "s/RPM_NAME/$(RPM_NAME)/g" \
+		-e "s/RPM_SUMMARY/$(RPM_SUMMARY)/g" \
+		-e "s/RPM_SOURCE0/$(RPM_SOURCE0)/g" \
+		-e "s/RPM_VERSION/$(RPM_VERSION)/g" \
+		-e "s/RPM_LICENSE/$(RPM_LICENSE)/g" \
+		-e "s/RPM_DISTRIBUTION/$(RPM_DISTRIBUTION)/g" \
+		-e "s/RPM_PACKAGER/$(RPM_PACKAGER)/g" \
+		-e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
+		$(RPM_NAME).spec.template > $(SPECFILE)
+
+copy: download
+	$Vfor file in $(files_to_copy); do \
+		echo "[Copy] $$file"; \
+		cp -f $$file $(sourcedir)/; \
+	done
+
+download:
+	$V[ ! -f $(RPM_SOURCE0) ] && \
+		echo "[Download] $(RPM_SOURCE0)" && \
+		curl $(SILENTCURL) -L $(RPM_URL) \
+			-o $(RPM_SOURCE0) $(SILENTOUT) || \
+	[ -f $(RPM_SOURCE0) ]
+
+install_default:
+	$Vrpms="`find $(rpmdir) -type f -name "*$(RPM_NAME)*rpm" ! -name "*debuginfo*"`"; \
+	echo "[Install] $$rpms"; \
+	$(YUM_LINSTALL) $$rpms $(SILENTOUT)
+
+uninstall_default:
+	$Vrpms="`pushd $(rpmdir) > /dev/null; find . -type f -name "*$(RPM_NAME)*rpm" ! -name "*debuginfo*" | sed \
+					-e 's/\.rpm$$//g' \
+					-e 's/\.\/x86_64\///g' \
+					-e 's/\.\/i686\///g' \
+					-e 's/\.\/noarch\///g' \
+					; popd > /dev/null`"; \
+	echo "[REMOVE] $$rpms"; \
+	$(YUM_REMOVE) $$rpms
+
+
+clean:
+	$Vecho "[Clean] $(RPM_NAME)"
+	$Vrm -f $(SPECFILE)
+	$Vrm -f $(foreach f,$(files_to_copy),$(sourcedir)/$f)
+	$Vrm -f $(RPM_SOURCE0)
