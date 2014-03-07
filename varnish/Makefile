@@ -10,5 +10,4 @@ RPM_URL		= http://repo.varnish-cache.org/source/$(RPM_SOURCE0)
 
 ROOTDIR = $(shell pwd)/../
 include $(ROOTDIR)Makefile.includes
-
-all: build_default
+include $(ROOTDIR)Makefile.pkg_stdrules

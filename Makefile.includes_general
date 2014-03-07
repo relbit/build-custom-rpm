@@ -1,12 +1,14 @@
 ifeq ($(VERBOSE),1)
 V               =
 SILENTOUT       =
+SILENTMAKE	=
 SILENTYUM       =
 SILENTCURL      =
 SILENTRPMBUILD  =
 else
 V               = @
 SILENTOUT       = > /dev/null 2>&1
+SILENTMAKE	= -s
 SILENTYUM       = -q
 SILENTCURL      = -s
 SILENTRPMBUILD  = --quiet
@@ -21,4 +23,7 @@ YUM_BUILDDEP    = yum-builddep $(SILENTYUM) -y
 RPMBUILD        = rpmbuild -ba $(SILENTRPMBUILD) $(SPECFILE)
 UNLOCK          = rm -f .make_lock
 
-
+builddir	= ~/rpmbuild
+rpmdir		= ~/rpmbuild/RPMS
+sourcedir	= ~/rpmbuild/SOURCES
+specdir		= ~/rpmbuild/SPECS

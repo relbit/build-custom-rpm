@@ -49,11 +49,6 @@ endif
 
 files_to_copy   = $(RPM_SOURCE0) $(RPM_SOURCES)
 
-builddir	= ~/rpmbuild
-rpmdir		= ~/rpmbuild/RPMS
-sourcedir	= ~/rpmbuild/SOURCES
-specdir		= ~/rpmbuild/SPECS
-
 SPECFILE	= $(specdir)/$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec
 
 build_default: copy prereq dependencies
@@ -74,7 +69,7 @@ prereq_default: spec
 	$V$(YUM_INSTALL) rpm-build yum-utils $(SILENTOUT)
 	$V$(YUM_BUILDDEP) $(SPECFILE) $(SILENTOUT) || true
 
-spec_default:
+spec_default: lock
 	$Vecho "[Make] $(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec"
 	$Vsed	-e "s/RPM_NAME/$(RPM_NAME)/g" \
 		-e "s/RPM_SUMMARY/$(RPM_SUMMARY)/g" \
@@ -124,14 +119,11 @@ install_default: build lock
 	$V$(UNLOCK)
 
 uninstall_default: lock
-	$Vrpms="`pushd $(rpmdir) > /dev/null; find . -type f -name "*$(RPM_NAME)*rpm" ! -name "*debuginfo*" | sed \
-					-e 's/\.rpm$$//g' \
-					-e 's/\.\/x86_64\///g' \
-					-e 's/\.\/i686\///g' \
-					-e 's/\.\/noarch\///g' \
-					; popd > /dev/null`"; \
+	$Vrpms="`rpm -qa | grep -P \"^$(RPM_NAME)\"`"; \
 	echo "[REMOVE] $$rpms"; \
-	$(YUM_REMOVE) $$rpms
+	if [ "$$rpms" != "" ]; then \
+		$(YUM_REMOVE) $$rpms; \
+	fi;
 	$V$(UNLOCK)
 
 
