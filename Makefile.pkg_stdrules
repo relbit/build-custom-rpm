@@ -1,0 +1,9 @@
+all: build_default
+prereq: prereq_default
+download: download_default
+copy: copy_default
+spec: spec_default
+build: build_default
+install: install_default
+uninstall: uninstall_default
+clean: clean_default
