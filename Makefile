@@ -37,3 +37,22 @@ mrproper: uninstall
 	$V$(MAKE) $(SILENTMAKE) clean $(MFLAGS)
 	$Vecho "[MrProper(tm)] *** Cleaning all rpmbuild dirs ***"
 	$Vrm -Rf $(builddir)
+
+help:
+	$(HELP)"Evia RPM Build Root\n"
+	$(HELP)"\t\n"
+	$(HELP)"Global options\n"
+	$(HELP)"\t[VERBOSE=1]	Verbose operation\n"
+	$(HELP)"\t\n"
+	$(HELP)"Global make targets\n"
+	$(HELP)"\tbuild		Build all packages\n"
+	$(HELP)"\tinstall\t	Install all packages\n"
+	$(HELP)"\tuninstall	Uninstall all packages, asks!\n"
+	$(HELP)"\tclean		Clean the build root\n"
+	$(HELP)"\tmrproper	Uninstall and clean + delete $(rpmbuild)\n"
+	$(HELP)"\thelp\n"
+	$(HELP)"\t\n"
+	$(HELP)"How to build a package\n"
+	$(HELP)"\tcd <your package>\n"
+	$(HELP)"\tmake help\n"
+

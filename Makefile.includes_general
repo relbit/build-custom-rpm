@@ -22,6 +22,7 @@ YUM_REMOVE      = yum remove # Never silence this for your own sake!
 YUM_BUILDDEP    = yum-builddep $(SILENTYUM) -y
 RPMBUILD        = rpmbuild -ba $(SILENTRPMBUILD) $(SPECFILE)
 UNLOCK          = rm -f .make_lock
+HELP		= $Vecho -en 
 
 builddir	= ~/rpmbuild
 rpmdir		= ~/rpmbuild/RPMS
