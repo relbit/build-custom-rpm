@@ -1,15 +1,16 @@
-%define version HAPROXY_VERSION
-%define dev_rel HAPROXY_DEV
-%define relver	RPM_RELEASE
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSION2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         source0n        RPM_SOURCEN0xN
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
 
-Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
-Name: haproxy
-Version: %{version}
-Release: %{dev_rel}.%{relver}
-License: GPL
-Group: System Environment/Daemons
-URL: http://haproxy.1wt.eu/
-Source0: http://haproxy.1wt.eu/download/1.5/src/devel/%{name}-%{version}-%{dev_rel}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 BuildRequires: pcre-devel, openssl-devel
 Requires: /sbin/chkconfig, /sbin/service
@@ -31,7 +32,7 @@ handle thousands of simultaneous connections on hundreds of instances without
 risking the system's stability.
 
 %prep
-%setup -n %{name}-%{version}-%{dev_rel}
+%setup -n %{source0n}
 
 # We don't want any perl dependecies in this RPM:
 %define __perl_requires /bin/true
