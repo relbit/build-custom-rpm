@@ -1,7 +1,7 @@
 Name:           RPM_NAME
 Summary:        RPM_SUMMARY
 Version:        RPM_VERSION
-%define         version_enc	RPM_VERSION2
+%define         version_enc	RPM_VERSIO2
 %define         relver          RPM_RELEASE
 Release:        %{relver}%{?dist}
 License:        RPM_LICENSE

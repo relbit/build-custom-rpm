@@ -92,8 +92,8 @@ spec:
 		-e "s/RPM_PACKAGER/$(RPM_PACKAGER)/g" \
 		-e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
 		$(RPM_NAME).spec.template > $(SPECFILE)
-ifdef RPM_VERSION2
-	$Vsed	-e "s/RPM_VERSION2/$(RPM_VERSION2)/g" \
+ifdef RPM_VERSIO2
+	$Vsed	-e "s/RPM_VERSIO2/$(RPM_VERSIO2)/g" \
 		-i $(SPECFILE)
 endif
 ifdef RPM_VERSIONMAJ
