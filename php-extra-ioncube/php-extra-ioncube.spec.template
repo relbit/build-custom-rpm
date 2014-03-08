@@ -1,0 +1,58 @@
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+%global phpname RPM_PHP_NAME
+%global extname RPM_EXT_NAME
+%global sapiver SAPI_VER
+%global peardir %{_datadir}/pear
+
+%global sapiver		SAPI_VER
+%global peardir		%{_datadir}/pear
+
+BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires: %{phpname}-devel
+Requires: %{phpname}-common
+Provides: %{phpname}-extra-ioncube, php-extra-ioncube
+%description
+PHP Language - IONCube Loader
+
+
+%prep
+
+%setup -q -n ioncube
+
+
+%build
+cat > ioncube.ini <<EOINI
+zend_loader=ioncube.so
+EOINI
+
+
+%install
+
+%{__mkdir_p} ${RPM_BUILD_ROOT}/%{_libdir}/%{sapiver}/
+%{__mkdir_p} ${RPM_BUILD_ROOT}/%{_sysconfdir}/php.d/
+%{__install} -m0644 ioncube_loader_lin_5.3.so ${RPM_BUILD_ROOT}/%{_libdir}/%{sapiver}/ioncube.so
+%{__install} -m0644 ioncube.ini ${RPM_BUILD_ROOT}/%{_sysconfdir}/php.d/ioncube.ini
+
+
+
+%clean
+
+%changelog
+
+%check
+
+%files
+%defattr(-,root,root)
+%config(noreplace) %{_sysconfdir}/php.d/ioncube.ini
+%{_libdir}/%{sapiver}/ioncube.so
+
