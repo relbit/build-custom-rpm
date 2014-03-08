@@ -10,6 +10,6 @@ RPM_URL		= http://downloads.sourceforge.net/project/boost/boost/$(RPM_VERSION)/$
 
 # Makefile internals from here on:
 
-ROOTDIR = $(shell pwd)/../
-include $(ROOTDIR)Makefile.includes
-include $(ROOTDIR)Makefile.pkg_stdrules
+MAKEDIR = $(shell pwd)/../.make/
+include $(MAKEDIR)Makefile.includes
+include $(MAKEDIR)Makefile.pkg_stdrules

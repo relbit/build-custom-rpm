@@ -10,6 +10,6 @@ RPM_BUILD_DEP	= apr install_default
 
 # Makefile internals from here on:
 
-ROOTDIR = $(shell pwd)/../
-include $(ROOTDIR)Makefile.includes
-include $(ROOTDIR)Makefile.pkg_stdrules
+MAKEDIR = $(shell pwd)/../.make/
+include $(MAKEDIR)Makefile.includes
+include $(MAKEDIR)Makefile.pkg_stdrules

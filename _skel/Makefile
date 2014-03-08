@@ -33,6 +33,6 @@ RPM_BUILD_DEP	= apr install_default RPM_RELEASE=$(RPM_RELEASE) \
 			VERBOSE=$(VERBOSE);
 # *** Makefile internals from here on:
 
-ROOTDIR = $(shell pwd)/../
-include $(ROOTDIR)Makefile.includes
-include $(ROOTDIR)Makefile.pkg_stdrules
+MAKEDIR = $(shell pwd)/../
+include $(MAKEDIR)Makefile.includes
+include $(MAKEDIR)Makefile.pkg_stdrules

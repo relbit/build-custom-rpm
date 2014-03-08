@@ -1,5 +1,6 @@
 ROOTDIR = $(shell pwd)/
--include $(ROOTDIR)Makefile.includes_general
+MAKEDIR = $(shell pwd)/.make/
+-include $(MAKEDIR)Makefile.includes_general
 
 PACKAGES = $(shell find . -mindepth 2 -maxdepth 2 -type f -name Makefile | sed -e 's/^\.\///g' -e 's/\/Makefile$$//g' | grep -v _skel | sort)
 

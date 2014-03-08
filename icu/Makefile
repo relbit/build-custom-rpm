@@ -1,7 +1,3 @@
-ifeq ($(wildcard ../Makefile.includes),) 
-include ../Makefile.includes
-endif
-
 PACKAGE_NAME	= International Components for Unicode
 RPM_DIR 	= rpms/
 RPM_RELEASE 	= 1

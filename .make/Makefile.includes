@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
--include $(ROOTDIR)Makefile.settings
-include $(ROOTDIR)Makefile.includes_general
+-include $(MAKEDIR)../Makefile.settings
+include $(MAKEDIR)Makefile.includes_general
 
 ifndef RPM_NAME
 $(error RPM_NAME not set)
@@ -144,7 +144,7 @@ $(shell deps=1; \
 		echo -en '"[Dependency] '; \
 		echo JCQ= | base64 -d; \
 		echo -en '1 for package $(RPM_NAME)\n";'; \
-		echo -en 'cd $(ROOTDIR)'; \
+		echo -en 'cd $(MAKEDIR)'; \
 		echo JCQ= | base64 -d; \
 		echo -en '1 && $(MAKE) $(SILENTMAKE) '; \
 		echo JCQ= | base64 -d; \

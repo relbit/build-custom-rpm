@@ -10,6 +10,6 @@ RPM_URL         = http://haproxy.1wt.eu/download/1.5/src/devel/$(RPM_SOURCE0)
 
 # Makefile internals from here on:
 
-ROOTDIR = $(shell pwd)/../
-include $(ROOTDIR)Makefile.includes
-include $(ROOTDIR)Makefile.pkg_stdrules
+MAKEDIR = $(shell pwd)/../.make/
+include $(MAKEDIR)Makefile.includes
+include $(MAKEDIR)Makefile.pkg_stdrules
