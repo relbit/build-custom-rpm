@@ -1,0 +1,68 @@
+%define version	LIBGLOG_VERSION
+%define relver  RPM_RELEASE
+
+Name: libglog
+Summary: A C++ application logging library
+Version: %{version}
+Release: %{relver}%{?dist}
+Group: Development/Libraries
+URL: http://code.google.com/p/google-glog
+License: BSD
+Vendor: Google
+Packager: Google Inc. <opensource@google.com>
+Source: LIBGLOG_FILE
+Distribution: Redhat 7 and above.
+Buildroot: %{_tmppath}/%{name}-root
+
+%description
+The %name package contains a library that implements application-level
+logging.  This library provides logging APIs based on C++-style
+streams and various helper macros.
+
+%package devel
+Summary: A C++ application logging library
+Group: Development/Libraries
+Requires: libglog
+
+%description devel
+The %name-devel package contains static and debug libraries and header
+files for developing applications that use the %name package.
+
+%prep
+%setup -D -n glog-%{version}
+
+%build
+./configure --prefix=/usr --libdir=%{_libdir}
+make prefix=${RPM_BUILD_ROOT}/usr %{?_smp_flags}
+#make prefix=${RPM_BUILD_ROOT}/usr %{?_smp_flags}
+
+%install
+make prefix=${RPM_BUILD_ROOT}/usr libdir=${RPM_BUILD_ROOT}/usr/lib64 install
+#make prefix=${RPM_BUILD_ROOT}/usr libdir=${RPM_BUILD_ROOT}/usr/lib64 install
+
+sed -i "s|${RPM_BUILD_ROOT}||g" $RPM_BUILD_ROOT%{_libdir}/pkgconfig/libglog.pc
+
+mv ${RPM_BUILD_ROOT}/usr/share/doc/glog-%{version} ${RPM_BUILD_ROOT}/usr/share/doc/libglog-%{version}
+
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+
+%docdir /usr/share/doc/libglog-%{version}
+/usr/share/doc/libglog-%{version}/*
+
+%{_libdir}/libglog.so.0
+%{_libdir}/libglog.so.0.0.0
+
+%files devel
+%defattr(-,root,root)
+
+/usr/include/glog
+%{_libdir}/libglog.a
+%{_libdir}/libglog.la
+%{_libdir}/libglog.so
+%{_libdir}/pkgconfig/libglog.pc
