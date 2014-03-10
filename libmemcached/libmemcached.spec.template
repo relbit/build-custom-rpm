@@ -1,24 +1,19 @@
-%define version LIBMEMCACHED_VERSION
-%define relver  RPM_RELEASE
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
 
 # Regression tests take a long time, you can skip 'em using --without tests
 %global with_tests       %{?_without_tests:0}%{!?_without_tests:1}
 %global with_sasl        1
-
-Name:      libmemcached
-Summary:   Client library and command line tools for memcached server
-Version:   %{version}
-Release:   %{relver}%{?dist}
-License:   BSD
-Group:     Applications/System
-URL:       http://libmemcached.org/
-# Original sources:
-#   http://launchpad.net/libmemcached/1.0/%{version}/+download/libmemcached-%{version}.tar.gz
-# The source tarball must be repackaged to remove the Hsieh hash
-# code, since the license is non-free.  When upgrading, download the new
-# source tarball, and run "./strip-hsieh.sh <version>" to produce the
-# "-exhsieh" tarball.
-Source0: LIBMEMCACHED_FILE
 
 %if %{with_sasl}
 BuildRequires: cyrus-sasl-devel
@@ -110,7 +105,7 @@ cp -p tests/*.{cc,h} examples/
 sed -e 's/-Werror//' -i Makefile
 %endif
 
-make %{_smp_mflags} V=1
+make %{?_smp_mflags} V=1
 
 
 %install
@@ -161,188 +156,3 @@ fi
 %{_mandir}/man3/libhashkit*
 %{_mandir}/man3/memcached*
 %{_mandir}/man3/hashkit*
-
-
-%changelog
-* Sat Dec 14 2013 Remi Collet <remi@fedoraproject.org> - 1.0.16-2
-- move libraries in new libs sub packages
-- add provides for bundled(bobjenkins-hash) #1041351
-- apply libpthread workaround #1037707
-- spec cleanups
-
-* Tue Dec 03 2013 Ruben Kerkhof <ruben@rubenkerkhof.com> 1.0.16-2
-- Fix linking against libpthread as a workaround for libtool bug #661333
-
-* Mon Aug  5 2013 Remi Collet <remi@fedoraproject.org> - 1.0.16-1
-- revert to 1.0.16 for fedora 20
-
-* Mon Aug  5 2013 Remi Collet <remi@fedoraproject.org> - 1.0.17-2
-- fix BR, libasan don't exist on all arch
-- disable all sanitize options (only for dev)
-
-* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.17-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
-
-* Thu Apr  4 2013 Remi Collet <remi@fedoraproject.org> - 1.0.17-1
-- update to 1.0.17
-- fix option --with-memcached and report regression
-  https://bugs.launchpad.net/libmemcached/+bug/1164440
-- broken build when -fsanitize=thread available
-  https://bugs.launchpad.net/libmemcached/+bug/1164442
-
-* Mon Feb  4 2013 Remi Collet <remi@fedoraproject.org> - 1.0.16-1
-- update to 1.0.16
-- ignore test result for memaslap (XFAIL but PASS)
-  https://bugs.launchpad.net/libmemcached/+bug/1115357
-
-* Sat Dec 29 2012 Remi Collet <remi@fedoraproject.org> - 1.0.15-1
-- update to 1.0.15
-- libmemcachedprotocol is back
-- add memaslap command line tool
-- report various issues to upstream
-  https://bugs.launchpad.net/libmemcached/+bug/1094413 (libevent)
-  https://bugs.launchpad.net/libmemcached/+bug/1094414 (c99 MODE)
-
-* Sat Nov 17 2012 Remi Collet <remi@fedoraproject.org> - 1.0.14-1
-- update to 1.0.14
-- libmemcachedprotocol removed
-- sasl support is back
-- run test during build
-- report various issues to upstream
-  https://bugs.launchpad.net/libmemcached/+bug/1079994 (bigendian)
-  https://bugs.launchpad.net/libmemcached/+bug/1079995 (config.h)
-  https://bugs.launchpad.net/libmemcached/+bug/1079996 (dtrace)
-  https://bugs.launchpad.net/libmemcached/+bug/1079997 (-ldl)
-  https://bugs.launchpad.net/libmemcached/+bug/1080000 (touch)
-
-* Sat Oct 20 2012 Remi Collet <remi@fedoraproject.org> - 1.0.13-1
-- update to 1.0.13
-
-* Fri Oct 19 2012 Remi Collet <remi@fedoraproject.org> - 1.0.12-2
-- temporary hack: fix LIBMEMCACHED_VERSION_HEX value
-
-* Thu Oct 11 2012 Remi Collet <remi@fedoraproject.org> - 1.0.12-1
-- update to 1.0.12
-- add aclocal/ax_lib_libmemcached.m4
-- abi-compliance-checker verdict : Compatible
-- uggly hack for man pages
-
-* Tue Sep 25 2012 Karsten Hopp <karsten@redhat.com> 1.0.11-2
-- fix defined but not used variable error on bigendian machines
-
-* Sat Sep 22 2012 Remi Collet <remi@fedoraproject.org> - 1.0.11-1
-- update to 1.0.11, soname bump to libmemcached.so.11
-- drop broken SASL support
-- don't generate parser (bison 2.6 not supported)
-
-* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.8-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
-
-* Sun May 27 2012 Remi Collet <remi@fedoraproject.org> - 1.0.8-1
-- update to 1.0.8
-
-* Sun Apr 22 2012 Remi Collet <remi@fedoraproject.org> - 1.0.7-1
-- update to 1.0.7
-- regenerate parser using flex/bison (#816766)
-
-* Sun Apr 22 2012 Remi Collet <remi@fedoraproject.org> - 1.0.6-2
-- workaround for SASL detection
-
-* Sat Apr 21 2012 Remi Collet <remi@fedoraproject.org> - 1.0.6-1
-- update to 1.0.6
-- soname bump to libmemcached.so.10 and libhashkit.so.2
-
-* Sat Mar 03 2012 Remi Collet <remi@fedoraproject.org> - 1.0.4-1
-- update to 1.0.4
-- soname bump to libmemcached.so.9
-- update description
-
-* Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.2-3
-- Rebuilt for c++ ABI breakage
-
-* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.2-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
-
-* Thu Oct 27 2011 Remi Collet <remi@fedoraproject.org> - 1.0.2-1
-- update to 1.0.2
-
-* Sun Oct 16 2011 Remi Collet <remi@fedoraproject.org> - 0.53-1
-- update to 0.53
-
-* Sat Sep 17 2011 Remi Collet <remi@fedoraproject.org> - 0.52-1
-- update to 0.52
-
-* Sun Jul 31 2011 Remi Collet <remi@fedoraproject.org> - 0.51-1
-- update to 0.51 (soname bump libmemcached.so.8)
-
-* Thu Jun 02 2011 Remi Collet <Fedora@famillecollet.com> - 0.49-1
-- update to 0.49
-- add build option : --with tests
-
-* Mon Feb 28 2011 Remi Collet <Fedora@famillecollet.com> - 0.47-1
-- update to 0.47
-- remove patch merged upstream
-
-* Sun Feb 20 2011 Remi Collet <Fedora@famillecollet.com> - 0.46-2
-- patch Makefile.in instead of include.am (to avoid autoconf)
-- donc requires pkgconfig with arch
-
-* Fri Feb 18 2011 Remi Collet <Fedora@famillecollet.com> - 0.46-1
-- update to 0.46
-
-* Sat Feb 12 2011 Remi Collet <Fedora@famillecollet.com> - 0.44-6
-- arch specific requires
-
-* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.44-5
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
-
-* Wed Nov 24 2010 Joe Orton <jorton@redhat.com> - 0.44-4
-- repackage source tarball to remove non-free Hsieh hash code
-
-* Sat Oct 02 2010 Remi Collet <Fedora@famillecollet.com> - 0.44-3
-- improves SASL patch
-
-* Sat Oct 02 2010 Remi Collet <Fedora@famillecollet.com> - 0.44-2
-- enable SASL support
-
-* Fri Oct 01 2010 Remi Collet <Fedora@famillecollet.com> - 0.44-1
-- update to 0.44
-- add soname version in %%file to detect change
-
-* Fri Jul 30 2010 Remi Collet <Fedora@famillecollet.com> - 0.43-1
-- update to 0.43
-
-* Wed Jul 07 2010 Remi Collet <Fedora@famillecollet.com> - 0.42-1
-- update to 0.42
-
-* Tue May 04 2010 Remi Collet <Fedora@famillecollet.com> - 0.40-1
-- update to 0.40 (new soname for libmemcached.so.5)
-- new URI (site + source)
-
-* Sat Mar 13 2010 Remi Collet <Fedora@famillecollet.com> - 0.38-1
-- update to 0.38
-
-* Sat Feb 06 2010 Remi Collet <Fedora@famillecollet.com> - 0.37-1
-- update to 0.37 (soname bump)
-- new libhashkit (should be a separated project in the futur)
-
-* Sun Sep 13 2009 Remi Collet <Fedora@famillecollet.com> - 0.31-1
-- update to 0.31
-
-* Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.30-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
-
-* Sun Jun 14 2009 Remi Collet <Fedora@famillecollet.com> - 0.30-1
-- update to 0.30
-
-* Tue May 19 2009 Remi Collet <Fedora@famillecollet.com> - 0.29-1
-- update to 0.29
-
-* Fri May 01 2009 Remi Collet <Fedora@famillecollet.com> - 0.28-2
-- add upstream patch to disable nonfree hsieh hash method
-
-* Sat Apr 25 2009 Remi Collet <Fedora@famillecollet.com> - 0.28-1
-- Initial RPM from Brian Aker spec
-- create -devel subpackage
-- add %%post %%postun %%check section
-
