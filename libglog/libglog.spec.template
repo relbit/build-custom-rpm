@@ -1,17 +1,18 @@
-%define version	LIBGLOG_VERSION
-%define relver  RPM_RELEASE
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
 
-Name: libglog
-Summary: A C++ application logging library
-Version: %{version}
-Release: %{relver}%{?dist}
 Group: Development/Libraries
-URL: http://code.google.com/p/google-glog
-License: BSD
 Vendor: Google
-Packager: Google Inc. <opensource@google.com>
-Source: LIBGLOG_FILE
-Distribution: Redhat 7 and above.
 Buildroot: %{_tmppath}/%{name}-root
 
 %description
@@ -29,7 +30,7 @@ The %name-devel package contains static and debug libraries and header
 files for developing applications that use the %name package.
 
 %prep
-%setup -D -n glog-%{version}
+%setup -D -n %{sourcen0}
 
 %build
 ./configure --prefix=/usr --libdir=%{_libdir}
