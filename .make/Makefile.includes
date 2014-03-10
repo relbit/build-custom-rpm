@@ -1,5 +1,6 @@
 SHELL := /bin/bash
 
+ROOTDIR = $(MAKEDIR)../
 -include $(MAKEDIR)../Makefile.settings
 include $(MAKEDIR)Makefile.includes_general
 
@@ -63,11 +64,13 @@ build_default: copy prereq dependencies
 	popd $(SILENTOUT)
 	$V$(UNLOCK)
 
-prereq_default: spec
+prereq_default: spec dependencies
+	$V$(LOCK_YUM)
 	$Vecho "[Prereq] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
 	$V$(YUM_GINSTALL) development $(SILENTOUT)
 	$V$(YUM_INSTALL) rpm-build yum-utils $(SILENTOUT)
 	$V$(YUM_BUILDDEP) $(SPECFILE) $(SILENTOUT) || true
+	$V$(UNLOCK_YUM)
 
 spec_default: lock
 	$Vecho "[Make] $(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec"
@@ -117,9 +120,11 @@ else
 endif
 
 install_default: build lock
+	$V$(LOCK_YUM)
 	$Vrpms="`find $(rpmdir) -type f -name "*$(RPM_NAME)*rpm" ! -name "*debuginfo*"`"; \
 	echo "[Install] $(RPM_NAME)"; \
 	$(YUM_LINSTALL) $$rpms $(SILENTOUT)
+	$V$(UNLOCK_YUM)
 	$V$(UNLOCK)
 
 uninstall_default: lock
@@ -129,7 +134,6 @@ uninstall_default: lock
 		$(YUM_REMOVE) $$rpms; \
 	fi;
 	$V$(UNLOCK)
-
 
 ifdef RPM_BUILD_DEP
 define newline
@@ -144,7 +148,7 @@ $(shell deps=1; \
 		echo -en '"[Dependency] '; \
 		echo JCQ= | base64 -d; \
 		echo -en '1 for package $(RPM_NAME)\n";'; \
-		echo -en 'cd $(MAKEDIR)'; \
+		echo -en 'cd $(ROOTDIR)'; \
 		echo JCQ= | base64 -d; \
 		echo -en '1 && $(MAKE) $(SILENTMAKE) '; \
 		echo JCQ= | base64 -d; \
@@ -160,7 +164,7 @@ $(shell deps=1; \
 		echo -en "#"; \
 		let "deps+=1"; \
 	done; \
-	echo -en "#dependencies: lock "; \
+	echo -en "dependencies: lock "; \
 	for i in `seq 1 $${deps}`; do \
 		echo -en "dependency.$$i "; \
 	done; \
@@ -194,11 +198,33 @@ lock:
 		[ -f .make_lock ] && [ ! -f /proc/`cat .make_lock`/mountstats ] && $(UNLOCK); \
 	done; \
 	echo $$PPID > .make_lock
-	$Vecho -en "\n[Lock] $(RPM_NAME)\n"
+	$Vecho -en "[Lock] $(RPM_NAME)\n"
 
+UNLOCK		= echo "[Lock release] $(RPM_NAME)" && rm -f .make_lock
 
 unlock:
 	$V$(UNLOCK)
+
+	
+LOCK_YUM = spins=0; \
+	[ -f $(ROOTDIR)/.yum_lock ] && [ ! -f /proc/`cat $(ROOTDIR)/.yum_lock`/mountstats ] && $(UNLOCK_YUM); \
+	while [ -f $(ROOTDIR)/.yum_lock ]; do \
+		let "spins+=1"; \
+		echo "[Yum Lock] $(RPM_NAME) spin $$spins"; \
+		sleep 1; \
+		[ -f $(ROOTDIR)/.yum_lock ] && [ ! -f /proc/`cat $(ROOTDIR)/.yum_lock`/mountstats ] && $(UNLOCK_YUM); \
+	done; \
+	echo $$PPID > $(ROOTDIR)/.yum_lock; \
+	echo -en "[Yum Lock] $(RPM_NAME)\n"
+
+UNLOCK_YUM	= echo "[Yum Lock release] $(RPM_NAME)" && rm -f $(ROOTDIR)/.yum_lock
+	
+lock_yum:
+	$V$(LOCK_YUM)
+
+
+unlock_yum:
+	$V$(UNLOCK_YUM)
 
 help:
 	$(HELP)"Evia RPM Build Root\n"
