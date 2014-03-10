@@ -1,18 +1,17 @@
-%define releasedate TBB_RELEASEDATE
-%define major TBB_MAJOR
-%define minor TBB_MINOR
-%define relver RPM_RELEASE
-%define sourcebasename tbb%{major}%{minor}_%{releasedate}oss
-%define sourcefilename %{sourcebasename}_src.tgz
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
 
-Summary: The Threading Building Blocks library abstracts low-level threading details
-Name: tbb
-Version: %{major}.%{minor}
-Release: %{releasedate}%{relver}%{?dist}
-License: GPLv2 with exceptions
 Group: Development/Tools
-URL: http://threadingbuildingblocks.org/
-Source: TBB_FILE
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libstdc++-devel
 BuildRequires: util-linux net-tools
@@ -40,7 +39,7 @@ Header files and shared object symlinks for the Threading Building
 Blocks (TBB) C++ libraries.
 
 %prep
-%setup -q -n %{sourcebasename}
+%setup -q -n %{sourcen0}
 
 %build
 make %{?_smp_mflags} CXXFLAGS="$RPM_OPT_FLAGS" tbb_build_prefix=obj
