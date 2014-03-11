@@ -1,0 +1,13 @@
+RPM_NAME        = REPLACE_RPM_NAME
+RPM_SUMMARY     = REPLACE_RPM_SUMMARY
+RPM_LICENSE     = REPLACE_RPM_LICENSE
+RPM_VERSION     = REPLACE_RPM_VERSION
+RPM_RELEASE     = REPLACE_RPM_RELEASE
+RPM_SOURCE0     = REPLACE_RPM_SOURCE0
+RPM_URL         = REPLACE_RPM_URL
+
+# Makefile internals from here on:
+
+MAKEDIR = $(shell pwd)/../.make/
+include $(MAKEDIR)Makefile.includes
+include $(MAKEDIR)Makefile.pkg_REPLACE_RULESTYPE

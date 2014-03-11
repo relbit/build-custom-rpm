@@ -39,6 +39,38 @@ mrproper: uninstall
 	$Vecho "[MrProper(tm)] *** Cleaning all rpmbuild dirs ***"
 	$Vrm -Rf $(builddir)
 
+new:
+	$Vecho "[Create] $(RPM_NAME)"; \
+	[ "$(RPM_NAME)" == "" ] && echo "RPM_NAME not set." && exit 1; \
+	[ "$(RPM_SUMMARY)" == "" ] && echo "RPM_SUMMARY not set." && exit 1; \
+	[ "$(RPM_LICENSE)" == "" ] && echo "RPM_LICENSE not set." && exit 1; \
+	[ "$(RPM_VERSION)" == "" ] && echo "RPM_VERSION not set." && exit 1; \
+	[ "$(RPM_URL)" == "" ] && echo "RPM_URL not set." && exit 1; \
+	RULESTYPE=$${RULESTYPE:-stdrules}; \
+	RPM_RELEASE=$${RPM_RELEASE:-1}; \
+	if [ "$$RPM_SOURCE0" != "" ]; then \
+		RPM_SOURCE0="`echo $$RPM_SOURCE0 | sed \
+			-e 's/$$RPM_NAME/\$$\(RPM_NAME\)/g' \
+			-e 's/$$RPM_VERSION/\$$\(RPM_VERSION\)/g'`"; \
+	fi; \
+	RPM_SOURCE0=$${RPM_SOURCE0:-\$$\(RPM_NAME\)-\$$\(RPM_VERSION\).tar.gz}; \
+	RPM_URL="`echo $$RPM_URL | sed \
+		-e \"s/$$RPM_NAME/\$$\(RPM_NAME\)/g\" \
+		-e \"s/$$RPM_VERSION/\$$\(RPM_VERSION\)/g\"`"; \
+	mkdir -p $$RPM_NAME; \
+	cp -f _skel/Makefile.$$RULESTYPE $$RPM_NAME/Makefile; \
+	sed	-e "s/REPLACE_RULESTYPE/$$RULESTYPE/g" \
+		-e "s/REPLACE_RPM_NAME/$$RPM_NAME/g" \
+		-e "s/REPLACE_RPM_SUMMARY/$$RPM_SUMMARY/g" \
+		-e "s/REPLACE_RPM_LICENSE/$$RPM_LICENSE/g" \
+		-e "s/REPLACE_RPM_VERSION/$$RPM_VERSION/g" \
+		-e "s/REPLACE_RPM_RELEASE/$$RPM_RELEASE/g" \
+		-e "s/REPLACE_RPM_SOURCE0/$$RPM_SOURCE0/g" \
+		-e "s|REPLACE_RPM_URL|$$RPM_URL|g" \
+		-i $$RPM_NAME/Makefile; \
+	cp -f _skel/spec.template.$$RULESTYPE $$RPM_NAME/$$RPM_NAME.spec.template;
+	$Vecho "[Done] You must complete $(RPM_NAME)/$(RPM_NAME).spec.template now."
+
 help:
 	$(HELP)"Evia RPM Build Root\n"
 	$(HELP)"\t\n"
