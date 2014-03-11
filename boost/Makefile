@@ -8,7 +8,7 @@ RPM_SOURCEN0	= $(RPM_NAME)_$(RPM_VERSIO2)
 RPM_SOURCE0     = $(RPM_SOURCEN0).tar.gz
 RPM_URL		= http://downloads.sourceforge.net/project/boost/boost/$(RPM_VERSION)/$(RPM_SOURCE0)
 
-#RPM_BUILD_DEP	= libicu
+RPM_BUILD_DEP	= libicu install
 
 # Makefile internals from here on:
 
