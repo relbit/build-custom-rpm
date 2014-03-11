@@ -143,6 +143,7 @@ endef
 $(eval \
 $(subst #,$(newline),\
 $(shell deps=1; \
+	depslist=''; \
 	function makedep { \
 		echo -en 'function makedep {' \
 		echo -en '"[Dependency] '; \
@@ -156,18 +157,18 @@ $(shell deps=1; \
 		echo -en '};'; \
 		echo -en  'makedep '; \
 	}; \
-	echo $(RPM_BUILD_DEP) | \
-	sed -e 's/;/\n/g' | \
-	while read line; do \
-		echo -en "dependency.$${deps}:\
-				#\t+$V`makedep` $${line};"; \
+	IFS=$$'\n'; \
+	for dep in `echo "$(RPM_BUILD_DEP)" | \
+	    sed -e 's/;/\n/g' | \
+	    sed -e 's/\s+/\s/g'`; do \
+		echo -en "dependency.$${deps}: lock; \
+				#\t+$V`makedep` $${dep};"; \
 		echo -en "#"; \
+		echo -en "#"; \
+		depslist="$${depslist} dependency.$${deps}"; \
 		let "deps+=1"; \
 	done; \
-	echo -en "dependencies: lock "; \
-	for i in `seq 1 $${deps}`; do \
-		echo -en "dependency.$$i "; \
-	done; \
+	echo -en "#dependencies: $$depslist"; \
 	echo -en "#";)))
 else
 dependencies:
