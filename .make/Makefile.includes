@@ -126,10 +126,9 @@ ifndef RPM_SOURCE_ISGIT
 else
 	$V[ ! -f $(RPM_SOURCE0) ] && \
 		echo "[Git clone] $(RPM_SOURCE0)" && \
-		git clone -b $(RPM_GIT_BRANCH) $(RPM_URL) && \
-		mv $(RPM_NAME) $(RPM_NAME)-$(RPM_VERSION) && \
-		tar cf $(RPM_SOURCE0) $(RPM_NAME)-$(RPM_VERSION) && \
-		rm -Rf $(RPM_NAME)-$(RPM_VERSION) || \
+		git clone -b $(RPM_GIT_BRANCH) $(RPM_URL) $(SILENTOUT) && \
+		tar cf $(RPM_SOURCE0) $(RPM_NAME) $(SILENTOUT) && \
+		rm -Rf $(RPM_NAME) || \
 	[ -f $(RPM_SOURCE0) ]
 endif
 else
