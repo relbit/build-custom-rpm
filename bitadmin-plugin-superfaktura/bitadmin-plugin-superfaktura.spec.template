@@ -17,30 +17,31 @@ Requires: rubygems
 Requires: bitadmin
 
 %description
-bitadmin-plugin-superfaktura
+%{name}
 
 %prep
-#%setup -q
+%setup -q -n %{name}
 
 %build
 
 %install
 shopt -s dotglob
-mkdir -p %{buildroot}/opt/bitadmin-plugin-superfaktura
-cp -R $RPM_BUILD_DIR/bitadmin-plugin-superfaktura/* %{buildroot}/opt/bitadmin-plugin-superfaktura
+mkdir -p %{buildroot}/opt/%{name}
+rm -Rf $RPM_BUILD_DIR/%{name}/.git*
+cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/opt/%{name}
 
 %post
 #!/bin/bash
 
 mkdir -p /opt/bitadmin/plugin
-cat > /opt/bitadmin/plugin/bitadmin-plugin-superfaktura.yml <<EOF
+cat > /opt/bitadmin/plugin/%{name}.yml <<EOF
 name: superfaktura 
-path: /opt/bitadmin-plugin-superfaktura-%{version}                 # plugin root
+path: /opt/%{name}                            # plugin root
 mount: /superfaktura                                               # mounting route to main rails app
 settings_view_file: app/views/superfaktura/index/settings.html.erb # view file displayed in bitadmin view
 EOF
 
-CRON=/etc/cron.d/bitadmin-plugin-superfaktura
+CRON=/etc/cron.d/%{name}
 CRON_LOG=/opt/bitadmin/log/superfaktura.log
 
 touch $CRON_LOG
@@ -52,9 +53,9 @@ EOF
 chmod 644 $CRON
 
 %preun
-[ -f /opt/bitadmin/plugin/bitadmin-plugin-superfaktura.yml ] && rm -f /opt/bitadmin/plugin/bitadmin-plugin-superfaktura.yml
-[ -f /etc/cron.d/bitadmin-plugin-superfaktura ] && rm -f /etc/cron.d/bitadmin-plugin-superfaktura
+[ -f /opt/bitadmin/plugin/%{name}.yml ] && rm -f /opt/bitadmin/plugin/%{name}.yml
+[ -f /etc/cron.d/%{name} ] && rm -f /etc/cron.d/%{name}
 
 
 %files
-/opt/bitadmin-plugin-superfaktura-%{version}/*
+/opt/%{name}/*
