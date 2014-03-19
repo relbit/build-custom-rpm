@@ -1,0 +1,60 @@
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+Requires: ruby-rdoc >= 3.12.2
+Requires: ruby
+Requires: rubygems
+Requires: bitadmin
+
+%description
+bitadmin-plugin-superfaktura
+
+%prep
+#%setup -q
+
+%build
+
+%install
+shopt -s dotglob
+mkdir -p %{buildroot}/opt/bitadmin-plugin-superfaktura
+cp -R $RPM_BUILD_DIR/bitadmin-plugin-superfaktura/* %{buildroot}/opt/bitadmin-plugin-superfaktura
+
+%post
+#!/bin/bash
+
+mkdir -p /opt/bitadmin/plugin
+cat > /opt/bitadmin/plugin/bitadmin-plugin-superfaktura.yml <<EOF
+name: superfaktura 
+path: /opt/bitadmin-plugin-superfaktura-%{version}                 # plugin root
+mount: /superfaktura                                               # mounting route to main rails app
+settings_view_file: app/views/superfaktura/index/settings.html.erb # view file displayed in bitadmin view
+EOF
+
+CRON=/etc/cron.d/bitadmin-plugin-superfaktura
+CRON_LOG=/opt/bitadmin/log/superfaktura.log
+
+touch $CRON_LOG
+
+cat > $CRON <<EOF
+*/5 * * * * root cd /opt/bitadmin/ && rake superfaktura:send_invoices >> $CRON_LOG
+
+EOF
+chmod 644 $CRON
+
+%preun
+[ -f /opt/bitadmin/plugin/bitadmin-plugin-superfaktura.yml ] && rm -f /opt/bitadmin/plugin/bitadmin-plugin-superfaktura.yml
+[ -f /etc/cron.d/bitadmin-plugin-superfaktura ] && rm -f /etc/cron.d/bitadmin-plugin-superfaktura
+
+
+%files
+/opt/bitadmin-plugin-superfaktura-%{version}/*
