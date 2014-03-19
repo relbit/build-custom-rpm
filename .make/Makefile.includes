@@ -28,8 +28,15 @@ ifndef RPM_SOURCE0
 $(error RPM_SOURCE0 not set)
 endif
 
+ifdef RPM_SOURCE0_ISGIT
+ifndef RPM_GIT_BRANCH
+$(warning RPM_GIT_BRANCH not set)
+RPM_URL         = http://source.not.set.in.package.Makefile/
+endif
+endif
+
 ifndef RPM_URL
-$(error RPM_URL not set)
+$(warning RPM_URL not set)
 RPM_URL         = http://source.not.set.in.package.Makefile/
 endif
 
@@ -38,8 +45,8 @@ RPM_SPECFILE	= $(RPM_NAME).spec.template
 endif
 
 ifndef RPM_PACKAGER
-RPM_PACKAGER	= RPM_PACKAGER not set in Makefile.settings
 $(warning $(RPM_PACKAGER))
+RPM_PACKAGER	= RPM_PACKAGER not set in Makefile.settings
 endif
 
 ifndef RPM_DISTRIBUTION
@@ -110,11 +117,21 @@ $(copy_files):	  download
 
 download_default: lock
 ifndef RPM_SOURCE_ISLOCAL
+ifndef RPM_SOURCE_ISGIT
 	$V[ ! -f $(RPM_SOURCE0) ] && \
 		echo "[Download] $(RPM_SOURCE0)" && \
 		curl $(SILENTCURL) -L $(RPM_URL) \
 			-o $(RPM_SOURCE0) $(SILENTOUT) || \
 	[ -f $(RPM_SOURCE0) ]
+else
+	$V[ ! -f $(RPM_SOURCE0) ] && \
+		echo "[Git clone] $(RPM_SOURCE0)" && \
+		git clone -b $(RPM_GIT_BRANCH) $(RPM_URL) && \
+		mv $(RPM_NAME) $(RPM_NAME)-$(RPM_VERSION) && \
+		tar cf $(RPM_SOURCE0) $(RPM_NAME)-$(RPM_VERSION) && \
+		rm -Rf $(RPM_NAME)-$(RPM_VERSION) || \
+	[ -f $(RPM_SOURCE0) ]
+endif
 else
 	$Vecho "[Local] $(RPM_SOURCE0)"
 endif

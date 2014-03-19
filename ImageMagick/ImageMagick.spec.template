@@ -165,7 +165,7 @@ mv README.txt.tmp README.txt
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 # Do *NOT* use %%{?_smp_mflags}, this causes PerlMagick to be silently misbuild
-make
+make %{?_smp_flags}
 
 
 %install
@@ -207,12 +207,10 @@ fi
 %define wordsize 32
 %endif
 
-mv %{buildroot}%{_includedir}/%{name}-6 %{buildroot}%{_includedir}/%{name}
+mv %{buildroot}%{_includedir}/%{name}-6/magick/magick-config.h \
+	%{buildroot}%{_includedir}/%{name}-6/magick/magick-config-%{wordsize}.h
 
-mv %{buildroot}%{_includedir}/%{name}/magick/magick-config.h \
-	%{buildroot}%{_includedir}/%{name}/magick/magick-config-%{wordsize}.h
-
-cat >%{buildroot}%{_includedir}/%{name}/magick/magick-config.h <<EOF
+cat >%{buildroot}%{_includedir}/%{name}-6/magick/magick-config.h <<EOF
 #ifndef IMAGEMAGICK_MULTILIB
 #define IMAGEMAGICK_MULTILIB
 
@@ -231,10 +229,6 @@ EOF
 
 # Fonts must be packaged separately. It does nothave matter and demos work without it.
 rm PerlMagick/demo/Generic.ttf
-
-%clean
-rm -rf %{buildroot}
-
 
 %post libs -p /sbin/ldconfig
 
@@ -277,9 +271,9 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/MagickWand-6.Q16.pc
 %{_libdir}/pkgconfig/Wand.pc
 %{_libdir}/pkgconfig/Wand-6.Q16.pc
-%dir %{_includedir}/%{name}
-%{_includedir}/%{name}/magick
-%{_includedir}/%{name}/wand
+%dir %{_includedir}/%{name}-6
+%{_includedir}/%{name}-6/magick
+%{_includedir}/%{name}-6/wand
 %{_mandir}/man1/Magick-config.*
 %{_mandir}/man1/MagickCore-config.*
 %{_mandir}/man1/Wand-config.*
@@ -304,8 +298,8 @@ rm -rf %{buildroot}
 %files c++-devel
 %defattr(-,root,root,-)
 %{_bindir}/Magick++-config
-%{_includedir}/%{name}/Magick++
-%{_includedir}/%{name}/Magick++.h
+%{_includedir}/%{name}-6/Magick++
+%{_includedir}/%{name}-6/Magick++.h
 %{_libdir}/libMagick++-6.Q16.so
 %{_libdir}/pkgconfig/Magick++.pc
 %{_libdir}/pkgconfig/Magick++-6.Q16.pc
