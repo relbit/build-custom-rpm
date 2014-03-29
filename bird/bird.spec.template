@@ -1,0 +1,66 @@
+Name: 		RPM_NAME
+Summary: 	RPM_SUMMARY
+Version: 	RPM_VERSION
+%define 	relver  	RPM_RELEASE
+Release: 	%{relver}%{?dist}
+License: 	RPM_LICENSE
+URL:		RPM_URL
+Source0:	RPM_SOURCE0
+Distribution:	RPM_DISTRIBUTION
+Packager:	RPM_PACKAGER
+
+Group: Networking/Daemons
+Source1: bird.init
+Source2: birdc6
+Source3: birdcl6
+
+BuildRequires: flex bison readline-devel ncurses-devel
+
+%description
+BIRD is dynamic routing daemon supporting IPv4 and IPv6 versions of routing
+protocols BGP, RIP and OSPF.
+
+%prep
+%setup -n bird-%{version}
+#%patch -p1
+
+
+%build
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-ipv6
+make
+mv bird bird6
+make clean
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+make
+
+
+%install
+rm -rf $RPM_BUILD_ROOT/*
+make install prefix=$RPM_BUILD_ROOT/usr sysconfdir=$RPM_BUILD_ROOT/etc localstatedir=$RPM_BUILD_ROOT/var
+install bird6 $RPM_BUILD_ROOT/usr/sbin
+
+cd $RPM_BUILD_ROOT
+install -d etc/rc.d/init.d
+install $RPM_SOURCE_DIR/bird.init etc/rc.d/init.d/bird
+install $RPM_SOURCE_DIR/birdc6 usr/sbin/birdc6
+install $RPM_SOURCE_DIR/birdcl6 usr/sbin/birdcl6
+
+%post
+/sbin/ldconfig
+/sbin/chkconfig --add bird
+ 
+%preun
+if [ $1 = 0 ] ; then
+        /sbin/chkconfig --del bird
+fi                                                                              
+
+%files
+%config(noreplace) %attr(644,root,root) /etc/bird.conf
+%attr(755,root,root) /usr/sbin/bird
+%attr(755,root,root) /usr/sbin/bird6
+%attr(755,root,root) /usr/sbin/birdc
+%attr(755,root,root) /usr/sbin/birdcl
+%attr(755,root,root) /usr/sbin/birdc6
+%attr(755,root,root) /usr/sbin/birdcl6
+%attr(755,root,root) /etc/rc.d/init.d/bird
+

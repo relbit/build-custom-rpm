@@ -1,0 +1,11 @@
+#! /bin/sh
+#
+# birdcl6       Wrapped to birdc to connect to IPv6 socket.
+#
+# Author:      Ondrej Feela Filip, <feela@network.cz>
+#
+
+CLIENT=/usr/sbin/birdcl
+SOCKET=/var/run/bird6.ctl
+
+exec $CLIENT -s $SOCKET $@
