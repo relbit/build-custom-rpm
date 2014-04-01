@@ -32,7 +32,7 @@ PHP Language - IONCube Loader
 
 %build
 cat > ioncube.ini <<EOINI
-zend_loader=ioncube.so
+zend_extension=%{_libdir}/%{sapiver}/ioncube.so
 EOINI
 
 
