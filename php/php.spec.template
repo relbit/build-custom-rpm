@@ -52,6 +52,7 @@ function do_configure() {
 	ln -sf ../configure ./configure
 %configure --prefix=/usr \
 		--with-zend-vm=GOTO \
+		--enable-dtrace \
 		--cache-file=../config.cache \
 		--with-libdir=%{_lib} \
 		--with-config-file-path=%{_sysconfdir} \
