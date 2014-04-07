@@ -8,6 +8,7 @@ URL:		RPM_URL
 Source0:	RPM_SOURCE0
 Distribution:	RPM_DISTRIBUTION
 Packager:	RPM_PACKAGER
+Epoch:		RPM_EPOCH
 
 Group: Networking/Daemons
 Source1: bird.init

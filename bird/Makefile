@@ -1,6 +1,7 @@
 RPM_NAME        = bird
 RPM_SUMMARY	= BIRD Internet Routing Daemon
 RPM_LICENSE	= GPL
+RPM_EPOCH	= 1
 RPM_VERSION     = 1.4.0
 RPM_RELEASE     = 1
 RPM_SOURCE0     = $(RPM_NAME)-$(RPM_VERSION).tar.gz
