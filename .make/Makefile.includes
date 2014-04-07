@@ -106,6 +106,10 @@ ifdef RPM_SOURCEN0
 	$Vsed	-e "s/RPM_SOURCEN0/$(RPM_SOURCEN0)/g" \
 		-i $(SPECFILE)
 endif
+ifdef RPM_EPOCH
+	$Vsed	-e "s/RPM_EPOCH/$(RPM_EPOCH)/g" \
+		-i $(SPECFILE)
+endif
 
 copy_files	= $(addprefix copy_,$(files_to_copy))
 copy_default:	  $(copy_files)

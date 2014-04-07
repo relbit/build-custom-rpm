@@ -28,6 +28,10 @@ PHP Language - PECL %{extname} %{version}
 
 
 %build
+if [ ! -f ./config.m4 ]; then
+	cd $(dirname `find . -type f -name config.m4`)
+fi;
+
 module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
 
 phpize
@@ -37,6 +41,10 @@ make %{?_smp_mflags} CFLAGS="%{optflags}"
 echo "extension=${module_name}.so" > extension.ini
 
 %install
+if [ ! -f ./config.m4 ]; then
+        cd $(dirname `find . -type f -name config.m4`)
+fi;
+
 module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
 
 %{__mkdir_p} ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/
