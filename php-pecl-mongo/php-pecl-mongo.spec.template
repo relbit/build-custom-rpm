@@ -1,1 +1,66 @@
-../_skel/php-pecl.spec.template
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+%global phpname	RPM_PHP_NAME
+%global extname	RPM_EXT_NAME
+%global sapiver	SAPI_VER
+%global peardir	%{_datadir}/pear
+
+BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires: %{phpname}-devel
+Requires: %{phpname}-common
+Provides: %{phpname}-pecl-%{extname}, php-pecl-%{extname}
+%description
+PHP Language - PECL %{extname} %{version}
+
+
+%prep
+
+%setup -D -q -n %{extname}-%{version}
+
+
+%build
+if [ ! -f ./config.m4 ]; then
+	cd $(dirname `find . -type f -name config.m4`)
+fi;
+
+module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
+
+phpize
+%configure
+make %{?_smp_mflags} CFLAGS="%{optflags}"
+
+echo "extension=${module_name}.so" > extension.ini
+
+%install
+if [ ! -f ./config.m4 ]; then
+        cd $(dirname `find . -type f -name config.m4`)
+fi;
+
+module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
+
+%{__mkdir_p} ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/
+%{__mkdir_p} ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/
+%{__install} -m0644  extension.ini	  ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/${module_name}.ini
+%{__install} -m0644 modules/${module_name}.so ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/${module_name}.so
+
+%clean
+
+%changelog
+
+%check
+#make test
+
+%files
+%defattr(-,root,root)
+%config(noreplace) %{_sysconfdir}/php.d/*.ini
+%{_libdir}/%{sapiver}/*
+
