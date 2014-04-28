@@ -205,6 +205,14 @@ ifndef RPM_SOURCE_ISLOCAL
 	$Vrm -f $(RPM_SOURCE0)
 endif
 
+mrproper_default: clean
+	$Vecho "[MrProper(tm)] $(RPM_NAME)"
+	$Vpushd $(rpmdir) $(SILENTOUT) && \
+		find . -type f -name "$(RPM_NAME)*$(RPM_VERSION)-$(RPM_RELEASE)*.rpm" -mtime -1 \
+		-exec /bin/rm -f {} \; ; \
+		popd $(SILENTOUT)
+		
+
 lock:
 	$V[ ! -d $(builddir) ] && mkdir -p $(builddir); \
 	[ ! -d $(rpmdir) ] && mkdir -p $(rpmdir); \
@@ -214,7 +222,7 @@ lock:
 	[ -f .make_lock ] && [ ! -f /proc/`cat .make_lock`/mountstats ] && $(UNLOCK); \
 	while [ -f .make_lock ]; do \
 		let "spins+=1"; \
-		echo "[Lock] $(RPM_NAME) spin $$spins"; \
+		[ "$V" == "" ] && echo "[Lock] $(RPM_NAME) spin $$spins"; \
 		sleep 1; \
 		[ -f .make_lock ] && [ ! -f /proc/`cat .make_lock`/mountstats ] && $(UNLOCK); \
 	done; \
@@ -231,7 +239,7 @@ LOCK_YUM = spins=0; \
 	[ -f $(ROOTDIR)/.yum_lock ] && [ ! -f /proc/`cat $(ROOTDIR)/.yum_lock`/mountstats ] && $(UNLOCK_YUM); \
 	while [ -f $(ROOTDIR)/.yum_lock ]; do \
 		let "spins+=1"; \
-		echo "[Yum Lock] $(RPM_NAME) spin $$spins"; \
+		[ "$V" == "" ] && echo "[Yum Lock] $(RPM_NAME) spin $$spins"; \
 		sleep 1; \
 		[ -f $(ROOTDIR)/.yum_lock ] && [ ! -f /proc/`cat $(ROOTDIR)/.yum_lock`/mountstats ] && $(UNLOCK_YUM); \
 	done; \

@@ -1,0 +1,19 @@
+all: dependencies
+	$V: ;
+prereq:
+	$V: ;
+download:
+	$V: ;
+copy:
+	$V: ;
+spec:
+	$V: ;
+build:
+	$V: ;
+install:
+	$V: ;
+uninstall:
+	$V: ;
+clean:
+	$V: ;
+
