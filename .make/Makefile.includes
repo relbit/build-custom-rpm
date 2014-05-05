@@ -120,23 +120,32 @@ $(copy_files):	  download
 	[ -f $(sourcedir)/$$file ]
 
 download_default: lock
-ifndef RPM_SOURCE_ISLOCAL
-ifndef RPM_SOURCE_ISGIT
+ifdef RPM_SOURCE_ISLOCAL
+	$Vecho "[Local] $(RPM_SOURCE0)"
+endif
+ifdef RPM_SOURCE_ISGIT
+	$V[ ! -f $(RPM_SOURCE0) ] && \
+		echo "[Git clone] $(RPM_NAME)" && \
+		git clone -b $(RPM_GIT_BRANCH) $(RPM_URL) $(RPM_NAME) $(SILENTOUT) || \
+	[ -f $(RPM_SOURCE0) ]
+endif
+ifdef RPM_GIT_AFTERCMD
+	$V[ ! -f $(RPM_SOURCE0) ] && \
+		$(RPM_GIT_AFTERCMD) || \
+	[ -f $(RPM_SOURCE0) ]
+endif
+ifdef RPM_SOURCE_ISGIT
+	$V[ ! -f $(RPM_SOURCE0) ] && \
+		tar cf $(RPM_SOURCE0) $(RPM_NAME) $(SILENTOUT) && \
+		rm -Rf $(RPM_NAME) || \
+	[ -f $(RPM_SOURCE0) ]
+endif
+ifeq ($(and $(RPM_SOURCE_ISLOCAL),$(RPM_SOURCE_ISGIT)),)
 	$V[ ! -f $(RPM_SOURCE0) ] && \
 		echo "[Download] $(RPM_SOURCE0)" && \
 		curl $(SILENTCURL) -L $(RPM_URL) \
 			-o $(RPM_SOURCE0) $(SILENTOUT) || \
 	[ -f $(RPM_SOURCE0) ]
-else
-	$V[ ! -f $(RPM_SOURCE0) ] && \
-		echo "[Git clone] $(RPM_SOURCE0)" && \
-		git clone -b $(RPM_GIT_BRANCH) $(RPM_URL) $(SILENTOUT) && \
-		tar cf $(RPM_SOURCE0) $(RPM_NAME) $(SILENTOUT) && \
-		rm -Rf $(RPM_NAME) || \
-	[ -f $(RPM_SOURCE0) ]
-endif
-else
-	$Vecho "[Local] $(RPM_SOURCE0)"
 endif
 
 install_default: build lock
