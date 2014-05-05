@@ -24,7 +24,7 @@ PHP Language - PECL %{extname} %{version}
 
 %prep
 
-%setup -D -q -n %{extname}-%{version}
+%setup -D -q -n %{sourcen0}
 
 
 %build
@@ -38,7 +38,7 @@ phpize
 %configure
 make %{?_smp_mflags} CFLAGS="%{optflags}"
 
-echo "extension=${module_name}.so" > extension.ini
+echo "zend_extension=%{_libdir}/%{sapiver}/${module_name}.so" > extension.ini
 
 %install
 if [ ! -f ./config.m4 ]; then
@@ -50,7 +50,7 @@ module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
 %{__mkdir_p} ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/
 %{__mkdir_p} ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/
 %{__install} -m0644  extension.ini	  ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/${module_name}.ini
-%{__install} -m0644 modules/${module_name}.so ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/${module_name}.so
+%{__install} -m0644 modules/opcache.so ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/${module_name}.so
 
 %clean
 

@@ -15,8 +15,8 @@ Packager:       RPM_PACKAGER
 %global peardir	%{_datadir}/pear
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires: %{phpname}-devel
-Requires: %{phpname}-common
+BuildRequires: %{phpname}-devel, GeoIP-devel
+Requires: %{phpname}-common, GeoIP
 Provides: %{phpname}-pecl-%{extname}, php-pecl-%{extname}
 %description
 PHP Language - PECL %{extname} %{version}
