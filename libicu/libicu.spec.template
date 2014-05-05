@@ -10,6 +10,7 @@ Source0:        RPM_SOURCE0
 %define         sourcen0        RPM_SOURCEN0
 Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
+Provides:	libicudata.so.42()(64bit) libicui18n.so.42()(64bit) libicuio.so.42()(64bit) libicule.so.42()(64bit) libiculx.so.42()(64bit) libicutest.so.42()(64bit) libicutu.so.42()(64bit) libicuuc.so.42()(64bit)
 
 Group:     Development/Tools
 Source1:   icu-config
