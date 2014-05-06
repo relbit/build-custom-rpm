@@ -60,6 +60,11 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/*.so.*
 cp -p %{SOURCE1} $RPM_BUILD_ROOT%{_bindir}/%{name}-config
 chmod 0755 $RPM_BUILD_ROOT%{_bindir}/%{name}-config
 
+for lib in icudata icui18n icuio icule iculx icutest icutu icuuc; do
+	ln -sf /usr/lib64/lib$lib.so.52   /usr/lib64/lib$lib.so.42;
+	ln -sf /usr/lib64/lib$lib.so.52.1 /usr/lib64/lib$lib.so.42.1;
+done
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
