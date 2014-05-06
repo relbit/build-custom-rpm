@@ -11,7 +11,7 @@ RPM_GIT_AFTERCMD = pushd hhvm $(SILENTOUT) && \
                    git submodule update --init --recursive && \
                    popd $(SILENTOUT)
 
-RPM_BUILD_DEP    = ImageMagick install; tbb install; libmemcached install; libglog install; libicu install; boost install;
+RPM_BUILD_DEP    = ImageMagick install; tbb install; libmemcached install; libglog install; boost install;
 
 # Makefile internals from here on:
 
