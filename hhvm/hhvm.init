@@ -2,7 +2,8 @@
 #
 # Init file for hhvm
 #
-# Written by Dag Wie√´rs 
+# Written by Dag Wievrs for memcached
+# Modified by Pavel Snajdr for HHVM
 #
 # chkconfig: - 80 12
 # description: HHVM
