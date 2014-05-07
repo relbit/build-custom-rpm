@@ -100,6 +100,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %dir %{_var}/run/%{name}
+%{_initddir}/%{name}
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}_default
 %{_bindir}/hhvm
 %{_bindir}/hphpize
