@@ -35,3 +35,4 @@ spec_pecl: ready spec_default
 		-e "s/SAPI_VER/$$sapiver/g" \
 		-i $(SPECFILE)
 
+.DEFAULT_GOAL := build

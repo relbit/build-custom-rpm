@@ -8,3 +8,4 @@ install: install_default
 uninstall: uninstall_default
 clean: clean_default
 mrproper: mrproper_default
+.DEFAULT_GOAL := build

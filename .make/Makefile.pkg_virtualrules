@@ -17,3 +17,4 @@ uninstall:
 clean:
 	$V: ;
 
+.DEFAULT_GOAL := dependencies
