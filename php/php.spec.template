@@ -128,18 +128,20 @@ function do_make {
 }
 
 PEAR_INSTALLDIR="%{peardir}"; export PEAR_INSTALLDIR
+EXTRA_CONFIG_FLAGS=
 
 test -f config.cache && rm -f config.cache
+test -f ext/opcache/README && EXTRA_CONFIG_FLAGS+="--enable-opcache "
 
 pushd build-cgi
-	do_configure 		--enable-fastcgi --enable-pcntl
+	do_configure 	$EXTRA_CONFIG_FLAGS --enable-fastcgi --enable-pcntl
 	do_make
 popd
 
 [ ! -d build-fpm ] && cp -af build-cgi build-fpm
 
 pushd build-fpm
-	do_configure 		--enable-fpm     --enable-pcntl --disable-cli
+	do_configure 	$EXTRA_CONFIG_FLAGS --enable-fpm     --enable-pcntl --disable-cli
 	do_make
 popd
 
