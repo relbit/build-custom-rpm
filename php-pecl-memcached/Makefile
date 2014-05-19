@@ -1,9 +1,9 @@
 RPM_PHP_NAME	= php53
-RPM_EXT_NAME	= memcache
-RPM_SUMMARY     = PHP Language PECL Extension - Memcache
+RPM_EXT_NAME	= memcached
+RPM_SUMMARY     = PHP Language PECL Extension - Memcached
 RPM_LICENSE     = PHP
-RPM_VERSION     = 3.0.8
-RPM_RELEASE     = 5
+RPM_VERSION     = 2.2.0
+RPM_RELEASE     = 1
 RPM_URL		= http://pecl.php.net/
 RPM_NAME        = $(RPM_PHP_NAME)-pecl-$(RPM_EXT_NAME)
 RPM_SOURCE0     = $(RPM_EXT_NAME)-$(RPM_VERSION).tgz
