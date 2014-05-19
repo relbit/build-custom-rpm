@@ -10,7 +10,7 @@ RPM_SOURCE0     = $(RPM_EXT_NAME)-$(RPM_VERSION).tgz
 RPM_SOURCE_ISLOCAL = 1
 
 RPM_SPECFILE	= php-pecl-$(RPM_EXT_NAME).spec.template
-RPM_BUILD_DEP	= php install
+RPM_BUILD_DEP	= php install RPM_NAME=$(RPM_PHP_NAME)
 
 # Makefile internals from here on:
 

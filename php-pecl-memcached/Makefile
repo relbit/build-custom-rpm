@@ -9,7 +9,7 @@ RPM_NAME        = $(RPM_PHP_NAME)-pecl-$(RPM_EXT_NAME)
 RPM_SOURCE0     = $(RPM_EXT_NAME)-$(RPM_VERSION).tgz
 
 RPM_SPECFILE	= php-pecl-$(RPM_EXT_NAME).spec.template
-RPM_BUILD_DEP	= libmemcached install; php install
+RPM_BUILD_DEP	= libmemcached install; php install RPM_NAME=$(RPM_PHP_NAME)
 
 # Makefile internals from here on:
 
