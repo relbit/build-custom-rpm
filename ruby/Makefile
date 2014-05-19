@@ -5,7 +5,7 @@ RPM_VERSION     = 2.0.0_p481
 RPM_RELEASE     = 3
 RPM_SOURCEN0	= ruby-2.0.0-p481
 RPM_SOURCE0     = $(RPM_SOURCEN0).tar.gz
-RPM_URL         = http://cache.ruby-lang.org/pub/ruby/2.0/$(SOURCE0)
+RPM_URL         = http://cache.ruby-lang.org/pub/ruby/2.0/$(RPM_SOURCE0)
 
 # Makefile internals from here on:
 
