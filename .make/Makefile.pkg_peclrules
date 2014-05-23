@@ -29,7 +29,7 @@ download_pecl: ready lock
 	[ -f $(sourcedir)/$(RPM_SOURCE0) ]
 	
 spec_pecl: ready spec_default
-	$Vsapiver="`phpize -v | awk '$$1 ~ /PHP/ { print $$4; }'`" && \
+	$Vsapiver="`phpize -v | awk '/Zend Module/ { print $$5; }'`" && \
 	sed	-e "s/RPM_PHP_NAME/$(RPM_PHP_NAME)/g" \
 		-e "s/RPM_EXT_NAME/$(RPM_EXT_NAME)/g" \
 		-e "s/SAPI_VER/$$sapiver/g" \
