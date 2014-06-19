@@ -7,7 +7,7 @@ RPM_SOURCE0      = $(RPM_NAME)-$(RPM_VERSION).tar.gz
 RPM_URL          = gitolite@git.int.prg.relbit.com:bitctl.git
 RPM_SOURCE_ISGIT = 1
 RPM_GIT_BRANCH   = devel
-RPM_SOURCES      = etc-init.d-bitctl etc-logrotate.d-bitctl
+RPM_SOURCES      = etc-init.d-bitctl etc-logrotate.d-bitctl usr-sbin-bitctl
 
 # Makefile internals from here on:
 

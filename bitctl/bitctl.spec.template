@@ -63,6 +63,7 @@ cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
 
 %{__mkdir_p} %{buildroot}/%{_initddir}
 %{__mkdir_p} %{buildroot}/%{_sysconfdir}/logrotate.d
+%{__mkdir_p} %{buildroot}/%{_sbin_dir}
 
 %{__install} -m0755 %{_sourcedir}/etc-init.d-%{name} %{buildroot}/%{_initddir}/%{name}
 %{__install} -m0644 %{_sourcedir}/etc-logrotate.d-%{name} %{buildroot}/%{_sysconfdir}/logrotate.d/%{name}
