@@ -1,30 +1,51 @@
+%global gem_dir /usr/lib64/ruby/gems/2.1.0
+%global rubygems_version 2.2.2
+
+%define bigdecimal_version 1.2.4
+%define io-console_version 0.4.2
+%define minitest_version 4.7.5
+%define psych_version 2.0.5
+%define rake_version 10.1.0
+%define rdoc_version 4.1.0
+%define test-unit_version 2.1.2.0
+
 Name:           RPM_NAME
 Summary:        RPM_SUMMARY
 Version:        RPM_VERSION
+%define         versio2         RPM_VERSIO2
 %define         relver          RPM_RELEASE
 Release:        %{relver}%{?dist}
 License:        RPM_LICENSE
 URL:            RPM_URL
 Source0:        RPM_SOURCE0
-%define         sourcen0        RPM_SOURCEN0
 Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRoot:      %{_tmppath}/%{name}-%{versio2}-%{relver}-root-%(%{__id_u} -n)
 BuildRequires:  readline libyaml libyaml-devel readline-devel ncurses ncurses-devel gdbm gdbm-devel glibc-devel tcl-devel gcc unzip openssl-devel db4-devel byacc make libffi-devel
 Requires:       libyaml
 Group:          Development/Languages
-Provides: ruby(abi) = 2.0
+
+Provides: ruby(abi) = 2.1
+Provides: ruby-libs
 Provides: ruby-irb
 Provides: ruby-rdoc
-Provides: ruby-libs
 Provides: ruby-devel
-Provides: rubygems
+Provides: ruby(rubygems) = %{rubygems_version}
+Provides: rubygems = %{rubygems_version}
+Provides: rubygem(bigdecimal) = %{bigdecimal_version}
+Provides: rubygem(io-console) = %{io-console_version}
+Provides: rubygem(minitest) = %{minitest_version}
+Provides: rubygem(psych) = %{psych_version}
+Provides: rubygem(rake) = %{rake_version}
+Provides: rubygem(rdoc) = %{rdoc_version}
+Provides: rubygem(unit-test) = %{test-unit_version}
 Obsoletes: ruby
 Obsoletes: ruby-libs
 Obsoletes: ruby-irb
 Obsoletes: ruby-rdoc
 Obsoletes: ruby-devel
+Obsoletes: ruby(rubygems)
 Obsoletes: rubygems
 
 %description
@@ -34,7 +55,7 @@ files and to do system management tasks (as in Perl).  It is simple,
 straight-forward, and extensible.
 
 %prep
-%setup -n %{sourcen0}
+%setup -n ruby-RPM_VERSIO2 -D
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS -Wall -fno-strict-aliasing"
@@ -45,11 +66,11 @@ export CFLAGS="$RPM_OPT_FLAGS -Wall -fno-strict-aliasing"
   --includedir=%{_includedir}/ruby \
   --libdir=%{_libdir}
 
-make -j1
+make -j4
 
 %install
 # installing binaries ...
-make -j1 install DESTDIR=$RPM_BUILD_ROOT
+make -j4 install DESTDIR=$RPM_BUILD_ROOT
 
 #we don't want to keep the src directory
 rm -rf $RPM_BUILD_ROOT/usr/src
@@ -63,15 +84,3 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}
 %{_datadir}
 %{_libdir}
-
-%changelog
-* Sun Feb 24 2013 Nathan Milford <nathan@milford.io> - 2.0.0-p0
-- Initial 2.0.0-p0 for realz.
-* Mon Jan 7 2013 Nathan Milford <nathan@milford.io> - 2.0.0-rc1
-- Initial 2.0.0 release candidate.
-* Sun Nov 25 2012 Gareth Jones <me@gazj.co.uk> - 1.9.3-p327
-- Update for Ruby 1.9.3-p327 release.
-* Wed Apr 25 2012 mathew <meta@pobox.com> - 1.9.3-p194-1
-- Update for Ruby 1.9.3-p194 release.
-* Sat Feb 24 2012 Ian Meyer <ianmmeyer@gmail.com> - 1.9.3-p125-1
-- Spec to replace system ruby with 1.9.3-p125
