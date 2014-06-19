@@ -75,9 +75,6 @@ chkconfig %{name} on
 
 %files
 %defattr(-,root,root)
-
-%config %{app_dir}/config/config.yml
-
 %{app_dir}
 %{_initddir}/%{name}
 %{_sysconfdir}/logrotate.d/%{name}
