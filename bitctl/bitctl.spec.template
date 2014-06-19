@@ -78,3 +78,4 @@ chkconfig %{name} on
 %{app_dir}
 %{_initddir}/%{name}
 %{_sysconfdir}/logrotate.d/%{name}
+%{_sbindir}/%{name}
