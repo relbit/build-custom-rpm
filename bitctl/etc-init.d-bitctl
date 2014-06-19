@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# Startup script for bitctl
+#
+# chkconfig: 2345 95 20
+# description: bitctl
+# processname: bitctl
+
+# Source function library. 
+. /etc/rc.d/init.d/functions
+
+PROCESS_NAME="bitctl"
+KILL_DELAY=5
+
+BIN_PATH="/usr/sbin/$PROCESS_NAME"
+PID_PATH="/var/run/$PROCESS_NAME.pid"
+OPTIONS="--pid $PID_PATH --daemon"
+LOCK_PATH="/var/lock/subsys/$PROCESS_NAME"
+
+start() {
+    echo -n "Starting $PROCESS_NAME: "
+    daemon --pidfile $PID_PATH $BIN_PATH $OPTIONS
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && touch $LOCK_PATH
+    return $retval
+}
+
+stop() {
+    echo -n "Shutting down $PROCESS_NAME: "
+    killproc -p $PID_PATH -d $KILL_DELAY $BIN_PATH
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && rm -f $LOCK_PATH
+    return $retval
+}
+
+restart() {
+    stop
+    start
+}
+
+rh_status() {
+    status -p $PID_PATH -l $LOCK_PATH $PROCESS_NAME
+}
+
+rh_status_q() {
+    rh_status > /dev/null 2>&1
+}
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    status)
+        rh_$1
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart|status}"
+        exit 2
+        ;;
+esac
