@@ -1,0 +1,102 @@
+%define app_dir /opt/%{name}
+%define models_dir /opt/bitmodels
+
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+Provides: bitdeploy
+Requires: ruby >= 2.1
+Requires: ruby(rubygems)
+Requires: MariaDB-client
+Requires: evia-release
+Requires: bitmodels
+Requires: evia-template-bitoxy
+Requires: evia-template-ens
+Requires: evia-template-gal
+Requires: evia-template-generic
+Requires: evia-template-han
+Requires: evia-template-ha
+Requires: evia-template-ins
+Requires: evia-template-mail
+Requires: evia-template-mem
+Requires: evia-template-mon
+Requires: evia-template-my
+Requires: evia-template-nat
+Requires: evia-template-nfs
+Requires: evia-template-ngx
+Requires: evia-template-pma
+Requires: evia-template-relay
+Requires: evia-template-uv
+Requires: evia-template-vns
+Requires: evia-template-w
+Requires: rubygem(bitlogger) >= 2.0.5
+Requires: rubygem(bitlogger) < 2.1.0
+Requires: rubygem(bitca) >= 2.0.5
+Requires: rubygem(bitca) < 2.1.0
+Requires: rubygem(bundler) >= 1.6.2
+Requires: rubygem(bundler) < 1.7.0
+Requires: rubygem(bson_ext) >= 1.10.1
+Requires: rubygem(bson_ext) < 1.11.0
+Requires: rubygem(mongo) >= 1.10.1
+Requires: rubygem(mongo) < 1.11.0
+Requires: rubygem(mongo_mapper) >= 0.13.0
+Requires: rubygem(mongo_mapper) < 0.14.0
+Requires: rubygem(rest-client) >= 1.6.7
+Requires: rubygem(rest-client) < 1.7.0
+Requires: rubygem(popen4) >= 0.1.2
+Requires: rubygem(popen4) < 0.2.0
+Requires: rubygem(activerecord) >= 4.1.1
+Requires: rubygem(activerecord) < 4.2.0
+Requires: rubygem(json) >= 1.8.1
+Requires: rubygem(json) < 1.9.0
+Requires: rubygem(ipaddress) >= 0.8.0
+Requires: rubygem(ipaddress) < 0.9.0
+Requires: rubygem(bcrypt-ruby) >= 3.1.5
+Requires: rubygem(bcrypt-ruby) < 3.2.0
+Requires: rubygem(mysql2) >= 0.3.16
+Requires: rubygem(mysql2) < 0.4.0
+Requires: rubygem(authlogic) >= 3.4.2
+Requires: rubygem(authlogic) < 4.0.0
+Requires: rubygem(colored) >= 1.2.0
+Requires: rubygem(colored) < 1.3.0
+Requires: rubygem(awesome_print) >= 1.2.0
+Requires: rubygem(awesome_print) < 1.3.0
+Requires: rubygem(rspec) >= 3.0.0
+Requires: rubygem(rspec) < 3.1.0
+
+%description
+%{name}
+
+%prep
+%setup -q -n %{name}
+
+%build
+
+%install
+shopt -s dotglob
+mkdir -p %{buildroot}/%{app_dir}
+rm -Rf $RPM_BUILD_DIR/%{name}/.git*
+cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
+
+%{__mkdir_p} %{buildroot}/%{_sbindir}
+
+%{__install} -m0755 %{_sourcedir}/usr-sbin-%{name} %{buildroot}/%{_sbindir}/%{name}
+
+%post
+rm -f %{app_dir}/app/models
+ln -s ${models_dir} %{app_dir}/app/models
+
+%files
+%defattr(-,root,root)
+%{app_dir}
+%{_sbindir}/%{name}

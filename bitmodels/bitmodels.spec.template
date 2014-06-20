@@ -1,0 +1,39 @@
+%define app_dir /opt/%{name}
+
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+Provides: bitmodels
+Requires: ruby >= 2.1
+Requires: ruby(rubygems)
+Requires: evia-release
+
+%description
+%{name}
+
+%prep
+%setup -q -n %{name}
+
+%build
+
+%install
+shopt -s dotglob
+mkdir -p %{buildroot}/%{app_dir}
+rm -Rf $RPM_BUILD_DIR/%{name}/.git*
+cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
+
+%post
+
+%files
+%defattr(-,root,root)
+%{app_dir}

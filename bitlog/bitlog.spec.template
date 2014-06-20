@@ -1,0 +1,64 @@
+%define app_dir /opt/%{name}
+
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+Provides: bitlog
+Requires: ruby >= 2.1
+Requires: ruby(rubygems)
+Requires: evia-release
+Requires: rubygem(bitlogger) >= 2.0.5
+Requires: rubygem(bitlogger) < 2.1.0
+Requires: rubygem(bundler) >= 1.6.2
+Requires: rubygem(bundler) < 1.7.0
+Requires: rubygem(bson_ext) >= 1.10.1
+Requires: rubygem(bson_ext) < 1.11.0
+Requires: rubygem(mongo) >= 1.10.1
+Requires: rubygem(mongo) < 1.11.0
+Requires: rubygem(activesupport) >= 4.1.1
+Requires: rubygem(activesupport) < 4.2.0
+
+%description
+%{name}
+
+%prep
+%setup -q -n %{name}
+
+%build
+
+%install
+shopt -s dotglob
+mkdir -p %{buildroot}/%{app_dir}
+rm -Rf $RPM_BUILD_DIR/%{name}/.git*
+cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
+
+%{__mkdir_p} %{buildroot}/%{_sysconfdir}/cron.d
+%{__mkdir_p} %{buildroot}/%{_sysconfdir}/logrotate.d
+%{__mkdir_p} %{buildroot}/%{_sbindir}
+
+%{__install} -m0644 %{_sourcedir}/etc-cron.d-%{name} %{buildroot}/%{_sysconfdir}/cron.d/%{name}
+%{__install} -m0644 %{_sourcedir}/etc-logrotate.d-%{name} %{buildroot}/%{_sysconfdir}/logrotate.d/%{name}
+%{__install} -m0755 %{_sourcedir}/usr-sbin-%{name}-aggregate %{buildroot}/%{_sbindir}/%{name}-aggregate
+%{__install} -m0755 %{_sourcedir}/usr-sbin-%{name}-collect %{buildroot}/%{_sbindir}/%{name}-collect
+
+%post
+chkconfig --add %{name}
+chkconfig %{name} on
+
+%files
+%defattr(-,root,root)
+%{app_dir}
+%{_sysconfdir}/cron.d/%{name}
+%{_sysconfdir}/logrotate.d/%{name}
+%{_sbindir}/%{name}-aggregate
+%{_sbindir}/%{name}-collect

@@ -1,0 +1,9 @@
+/opt/bitadmin/log/development.log {
+    copytruncate
+    weekly
+    minsize 10M
+    rotate 6
+    compress
+    dateext
+    missingok
+}

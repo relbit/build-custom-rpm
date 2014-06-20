@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/opt/bitaccount/bin/bitaccount-console $*

@@ -1,0 +1,96 @@
+%define app_dir /opt/%{name}
+%define models_dir /opt/bitmodels
+
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+Provides: bitsuper
+Requires: ruby >= 2.1
+Requires: ruby(rubygems)
+Requires: MariaDB-client
+Requires: evia-release
+Requires: bitmodels
+Requires: rubygem(authlogic) >= 3.4.2
+Requires: rubygem(authlogic) < 4.0.0
+Requires: rubygem(bitca) >= 2.0.5
+Requires: rubygem(bitca) < 2.1.0
+Requires: rubygem(bundler) >= 1.6.2
+Requires: rubygem(bundler) < 1.7.0
+Requires: rubygem(bson_ext) >= 1.10.1
+Requires: rubygem(bson_ext) < 1.11.0
+Requires: rubygem(json) >= 1.8.1
+Requires: rubygem(json) < 1.9.0
+Requires: rubygem(mongo) >= 1.10.1
+Requires: rubygem(mongo) < 1.11.0
+Requires: rubygem(mongo_mapper) >= 0.13.0
+Requires: rubygem(mongo_mapper) < 0.14.0
+Requires: rubygem(mysql2) >= 0.3.16
+Requires: rubygem(mysql2) < 0.4.0
+Requires: rubygem(actionpack) >= 4.1.1
+Requires: rubygem(actionpack) < 4.2.0
+Requires: rubygem(activesupport) >= 4.1.1
+Requires: rubygem(activesupport) < 4.2.0
+Requires: rubygem(activerecord) >= 4.1.1
+Requires: rubygem(activerecord) < 4.2.0
+Requires: rubygem(rest-client) >= 1.6.7
+Requires: rubygem(rest-client) < 1.7.0
+Requires: rubygem(thin) >= 1.6.2
+Requires: rubygem(thin) < 1.7.0
+Requires: rubygem(sinatra) >= 1.4.5
+Requires: rubygem(sinatra) < 1.5.0
+Requires: rubygem(uuid) >= 2.3.7
+Requires: rubygem(uuid) < 2.4.0
+Requires: rubygem(colored) >= 1.2.0
+Requires: rubygem(colored) < 1.3.0
+Requires: rubygem(awesome_print) >= 1.2.0
+Requires: rubygem(awesome_print) < 1.3.0
+Requires: rubygem(popen4) >= 0.1.2
+Requires: rubygem(popen4) < 0.2.0
+
+%description
+%{name}
+
+%prep
+%setup -q -n %{name}
+
+%build
+
+%install
+shopt -s dotglob
+mkdir -p %{buildroot}/%{app_dir}
+rm -Rf $RPM_BUILD_DIR/%{name}/.git*
+cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
+
+%{__mkdir_p} %{buildroot}/%{_initddir}
+%{__mkdir_p} %{buildroot}/%{_sysconfdir}/logrotate.d
+%{__mkdir_p} %{buildroot}/%{_sbindir}
+
+%{__install} -m0755 %{_sourcedir}/etc-init.d-%{name} %{buildroot}/%{_initddir}/%{name}
+%{__install} -m0644 %{_sourcedir}/etc-logrotate.d-%{name} %{buildroot}/%{_sysconfdir}/logrotate.d/%{name}
+%{__install} -m0755 %{_sourcedir}/usr-sbin-%{name} %{buildroot}/%{_sbindir}/%{name}
+%{__install} -m0755 %{_sourcedir}/usr-sbin-%{name}-console %{buildroot}/%{_sbindir}/%{name}-console
+
+%post
+rm -f %{app_dir}/models
+ln -s ${models_dir} %{app_dir}/models
+
+chkconfig --add %{name}
+chkconfig %{name} on
+
+%files
+%defattr(-,root,root)
+%{app_dir}
+%{_initddir}/%{name}
+%{_sysconfdir}/logrotate.d/%{name}
+%{_sbindir}/%{name}
+%{_sbindir}/%{name}-console

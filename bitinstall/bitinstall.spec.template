@@ -1,0 +1,79 @@
+%define app_dir /opt/%{name}
+
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+Provides: bitinstall
+Requires: ruby >= 2.1
+Requires: ruby-irb
+Requires: ruby(rubygems)
+Requires: MariaDB-client
+Requires: evia-release
+Requires: rubygem(bundler) >= 1.6.2
+Requires: rubygem(bundler) < 1.7.0
+Requires: rubygem(coffee-rails) >= 4.0.1
+Requires: rubygem(coffee-rails) < 4.1.1
+Requires: rubygem(jquery-rails) >= 3.1.0
+Requires: rubygem(jquery-rails) < 3.2.0
+Requires: rubygem(mysql2) >= 0.3.16
+Requires: rubygem(mysql2) < 0.4.0
+Requires: rubygem(rails) >= 4.1.1
+Requires: rubygem(rails) < 4.2.0
+Requires: rubygem(rest-client) >= 1.6.7
+Requires: rubygem(rest-client) < 1.7.0
+Requires: rubygem(sass-rails) >= 4.0.3
+Requires: rubygem(sass-rails) < 4.1.0
+Requires: rubygem(therubyracer) >= 0.12.1
+Requires: rubygem(therubyracer) < 0.13.0
+Requires: rubygem(thin) >= 1.6.2
+Requires: rubygem(thin) < 1.7.0
+Requires: rubygem(uglifier) >= 2.5.0
+Requires: rubygem(uglifier) < 2.6.0
+Requires: rubygem(sshkey) >= 1.6.1
+Requires: rubygem(sshkey) < 1.7.0
+Requires: rubygem(ipaddress) >= 0.8.0
+Requires: rubygem(ipaddress) < 0.9.0
+Requires: rubygem(kwalify) >= 0.7.2
+Requires: rubygem(kwalify) < 0.8.0
+
+%description
+%{name}
+
+%prep
+%setup -q -n %{name}
+
+%build
+
+%install
+shopt -s dotglob
+mkdir -p %{buildroot}/%{app_dir}
+rm -Rf $RPM_BUILD_DIR/%{name}/.git*
+cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
+
+%{__mkdir_p} %{buildroot}/%{_initddir}
+%{__mkdir_p} %{buildroot}/%{_sbindir}
+
+%{__install} -m0755 %{_sourcedir}/etc-init.d-%{name} %{buildroot}/%{_initddir}/%{name}
+%{__install} -m0755 %{_sourcedir}/usr-sbin-%{name} %{buildroot}/%{_sbindir}/%{name}
+%{__install} -m0755 %{_sourcedir}/usr-sbin-%{name}-console %{buildroot}/%{_sbindir}/%{name}-console
+
+%post
+chkconfig --add %{name}
+chkconfig %{name} on
+
+%files
+%defattr(-,root,root)
+%{app_dir}
+%{_initddir}/%{name}
+%{_sbindir}/%{name}
+%{_sbindir}/%{name}-console

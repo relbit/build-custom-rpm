@@ -1,0 +1,3 @@
+* * * * * root /opt/bitlog/bin/bitlog collect
+*/15 * * * * root /opt/bitlog/bin/bitlog aggregate
+

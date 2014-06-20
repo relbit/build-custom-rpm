@@ -1,13 +1,13 @@
-RPM_NAME         = bitctl
-RPM_SUMMARY      = bitctl
+RPM_NAME         = bitstat
+RPM_SUMMARY      = bitstat
 RPM_LICENSE      = EULA
-RPM_VERSION      = 2.0.6
+RPM_VERSION      = 2.0.5
 RPM_RELEASE      = 200
 RPM_SOURCE0      = $(RPM_NAME)-$(RPM_VERSION).tar.gz
-RPM_URL          = gitolite@git.int.prg.relbit.com:bitctl.git
+RPM_URL          = gitolite@git.int.prg.relbit.com:bitstat.git
 RPM_SOURCE_ISGIT = 1
 RPM_GIT_BRANCH   = ruby2.1
-RPM_SOURCES      = etc-init.d-bitctl etc-logrotate.d-bitctl usr-sbin-bitctl
+RPM_SOURCES      = etc-init.d-bitstat etc-logrotate.d-bitstat usr-sbin-bitstat
 
 # Makefile internals from here on:
 

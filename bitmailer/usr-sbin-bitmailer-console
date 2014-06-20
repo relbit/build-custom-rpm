@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/opt/bitmailer/script/rails console $*
