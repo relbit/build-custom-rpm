@@ -1,6 +1,6 @@
 RPM_NAME        = bitadmin-plugin-superfaktura
 RPM_SUMMARY     = Internal Relbit plugin for superfaktura.sk
-RPM_LICENSE     = EULA
+RPM_LICENSE     = Apache Software License
 RPM_VERSION     = 2.0
 RPM_RELEASE     = 7
 RPM_SOURCE0     = $(RPM_NAME)-$(RPM_VERSION).tar.gz
