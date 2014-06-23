@@ -84,7 +84,7 @@ cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
 
 %post
 rm -f %{app_dir}/models
-ln -s ${models_dir} %{app_dir}/models
+ln -s %{models_dir} %{app_dir}/models
 
 chkconfig --add %{name}
 chkconfig %{name} on
