@@ -19,18 +19,16 @@ Requires: evia-release
 %description
 %{name}
 
-%prep
-shopt -s dotglob
-rm -rf $RPM_BUILD_DIR/evia-template-w
-rm -rf %{buildroot}
-cp -R $RPM_SOURCE_DIR/evia-template-w .
-
-%build
-
-%install
-shopt -s dotglob
-mkdir -p %{buildroot}/%{template_dir}
-cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{template_dir}
+%prep 
+mkdir -p $RPM_BUILD_DIR/%{name}/ 
+cp %{SOURCE0} $RPM_BUILD_DIR/%{name}/ 
+ 
+%build 
+ 
+%install 
+shopt -s dotglob 
+mkdir -p %{buildroot}/%{template_dir} 
+cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{template_dir} 
 
 %post
 
