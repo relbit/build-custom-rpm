@@ -1,0 +1,38 @@
+%define app_dir /opt/%{name}
+
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+Provides: evia-release
+
+%description
+%{name}
+
+%prep
+shopt -s dotglob
+rm -rf $RPM_BUILD_DIR/%{name}
+rm -rf %{buildroot}
+cp -R $RPM_SOURCE_DIR/%{name} .
+
+%build
+
+%install
+shopt -s dotglob
+rm -Rf $RPM_BUILD_DIR/%{name}/.git*
+cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/
+
+%post
+
+%files
+%defattr(-,root,root)
+%dir /
