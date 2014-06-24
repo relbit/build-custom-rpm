@@ -13,7 +13,7 @@ Source0:        RPM_SOURCE0
 Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
 
-Provides: evia-template-w
+Provides: evia-template-relay
 Requires: evia-release
 
 %description
@@ -21,9 +21,9 @@ Requires: evia-release
 
 %prep
 shopt -s dotglob
-rm -rf $RPM_BUILD_DIR/evia-template-w
+rm -rf $RPM_BUILD_DIR/evia-template-relay
 rm -rf %{buildroot}
-cp -R $RPM_SOURCE_DIR/evia-template-w .
+cp -R $RPM_SOURCE_DIR/evia-template-relay .
 
 %build
 
@@ -36,4 +36,4 @@ cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{template_dir}
 
 %files
 %defattr(-,root,root)
-%{template_dir}/scientific-6-x86_64-evia-w.tar.gz
+%{template_dir}/scientific-6-x86_64-evia-relay.tar.gz
