@@ -1,5 +1,3 @@
-%define app_dir /opt/%{name}
-
 Name:           RPM_NAME
 Summary:        RPM_SUMMARY
 Version:        RPM_VERSION
@@ -19,10 +17,7 @@ Provides: evia-release
 %{name}
 
 %prep
-shopt -s dotglob
-rm -rf $RPM_BUILD_DIR/%{name}
-rm -rf %{buildroot}
-cp -R $RPM_SOURCE_DIR/%{name} .
+%setup -q -n %{name}
 
 %build
 
@@ -35,4 +30,4 @@ cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/
 
 %files
 %defattr(-,root,root)
-%dir /
+/
