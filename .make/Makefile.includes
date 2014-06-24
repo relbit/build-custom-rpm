@@ -214,20 +214,29 @@ clean_default: lock
 	$Vecho "[Clean] $(RPM_NAME)"
 	$Vrm -f $(SPECFILE)
 	$Vrm -f $(foreach f,$(files_to_copy),$(sourcedir)/$f)
+	$Vrm -rf $(builddir)/$(RPM_NAME)
+	$Vrm -rf $(buildrootdir)/$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE)*
 ifndef RPM_SOURCE_ISLOCAL
 	$Vrm -f $(RPM_SOURCE0)
 endif
 
 mrproper_default: clean
 	$Vecho "[MrProper(tm)] $(RPM_NAME)"
-	$Vpushd $(rpmdir) $(SILENTOUT) && \
-		find . -type f -name "$(RPM_NAME)*$(RPM_VERSION)-$(RPM_RELEASE)*.rpm" -mtime -1 \
+	$Vpushd $(rpmbuild_root) $(SILENTOUT) && \
+		find . -type f -name "$(RPM_NAME)-[0-9]\.[0-9]\.[0-9]-*.rpm" \
 		-exec /bin/rm -f {} \; ; \
 		popd $(SILENTOUT)
-		
+	$Vpushd $(rpmbuild_root) $(SILENTOUT) && \
+		find . -type f -name "$(RPM_NAME)-debuginfo-[0-9]\.[0-9]\.[0-9]-*.rpm" \
+		-exec /bin/rm -f {} \; ; \
+		popd $(SILENTOUT)
+	$Vpushd $(specdir) $(SILENTOUT) && \
+		find . -type f -name "$(RPM_NAME)-[0-9]\.[0-9]\.[0-9]-*.spec" \
+		-exec /bin/rm -f {} \; ; \
+		popd $(SILENTOUT)
 
 lock:
-	$V[ ! -d $(builddir) ] && mkdir -p $(builddir); \
+	$V[ ! -d $(rpmbuild_root) ] && mkdir -p $(rpmbuild_root); \
 	[ ! -d $(rpmdir) ] && mkdir -p $(rpmdir); \
 	[ ! -d $(sourcedir) ] && mkdir -p $(sourcedir); \
 	[ ! -d $(specdir) ] && mkdir -p $(specdir); \

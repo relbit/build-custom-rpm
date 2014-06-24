@@ -37,7 +37,7 @@ $(uninstall_PACKAGES):
 mrproper: uninstall
 	$V$(MAKE) $(SILENTMAKE) clean $(MFLAGS)
 	$Vecho "[MrProper(tm)] *** Cleaning all rpmbuild dirs ***"
-	$Vrm -Rf $(builddir)
+	$Vrm -Rf $(rpmbuild_root)
 
 new:
 	$Vecho "[Create] $(RPM_NAME)"; \
