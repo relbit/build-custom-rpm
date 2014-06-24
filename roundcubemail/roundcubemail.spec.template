@@ -1,0 +1,33 @@
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+%description
+%{name}
+
+%prep
+%setup -q
+
+%build
+
+%install
+shopt -s dotglob
+mkdir -p %{buildroot}/usr/share/%{name}
+cp -R $RPM_BUILD_DIR/%{name}-%{version}/* %{buildroot}/usr/share/%{name}
+
+%files
+/usr/share/%{name}/.htaccess
+/usr/share/%{name}/*
+%defattr(777,root,root,777)
+%attr(-,root,root) /usr/share/%{name}/logs
+%attr(-,root,root) /usr/share/%{name}/temp
+
