@@ -34,4 +34,4 @@ cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{template_dir}
 
 %files
 %defattr(-,root,root)
-%{template_dir}/scientific-6-x86_64-evia-my.tar.gz
+%{template_dir}/
