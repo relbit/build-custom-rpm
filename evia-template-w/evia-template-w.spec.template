@@ -1,0 +1,36 @@
+%define template_dir /vz/template/cache/
+
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+Provides: evia-template-w
+Requires: evia-release
+
+%description
+%{name}
+
+%prep
+%setup -q -n %{name}
+
+%build
+
+%install
+shopt -s dotglob
+mkdir -p %{buildroot}/%{template_dir}
+cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{template_dir}
+
+%post
+
+%files
+%defattr(-,root,root)
+%{template_dir}/scientific-6-x86_64-evia-w.tar.gz
