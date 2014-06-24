@@ -93,8 +93,8 @@ cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
 %{__install} -m0755 %{_sourcedir}/usr-sbin-%{name} %{buildroot}/%{_sbindir}/%{name}
 
 %post
-rm -f %{app_dir}/app/models
-ln -s %{models_dir} %{app_dir}/app/models
+rm -f %{app_dir}/models
+ln -s %{models_dir} %{app_dir}/models
 
 %files
 %defattr(-,root,root)
