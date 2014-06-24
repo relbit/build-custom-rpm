@@ -15,15 +15,15 @@ SILENTRPMBUILD  = --quiet
 GNUMAKEFLAGS	= --no-print-directory
 endif
 
+builddir  = /root/rpmbuild/
+rpmdir    = $(builddir)/RPMS
+sourcedir = $(builddir)/SOURCES
+specdir   = $(builddir)/SPECS
+
 YUM_INSTALL     = yum install $(SILENTYUM) -y
 YUM_LINSTALL    = yum localinstall $(SILENTYUM) -y --nogpgcheck
 YUM_GINSTALL    = yum groupinstall $(SILENTYUM) -y
 YUM_REMOVE      = yum remove # Never silence this for your own sake!
 YUM_BUILDDEP    = yum-builddep $(SILENTYUM) -y
-RPMBUILD        = rpmbuild -ba $(SILENTRPMBUILD) $(SPECFILE)
+RPMBUILD        = rpmbuild --define "_topdir $(builddir)" -ba $(SILENTRPMBUILD) $(SPECFILE)
 HELP		= $Vecho -en 
-
-builddir	= ~/rpmbuild
-rpmdir		= ~/rpmbuild/RPMS
-sourcedir	= ~/rpmbuild/SOURCES
-specdir		= ~/rpmbuild/SPECS
