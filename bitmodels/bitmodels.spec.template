@@ -25,6 +25,7 @@ Requires: evia-release
 %setup -q -n %{name}
 
 %build
+echo "%{version}-%{relver}+$(date +'%g%m%d%H%M').$(git rev-parse --short HEAD)" > BUILD
 
 %install
 shopt -s dotglob

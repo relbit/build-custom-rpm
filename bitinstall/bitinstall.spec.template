@@ -53,6 +53,7 @@ Requires: rubygem(kwalify) < 0.8.0
 %setup -q -n %{name}
 
 %build
+echo "%{version}-%{relver}+$(date +'%g%m%d%H%M').$(git rev-parse --short HEAD)" > BUILD
 
 %install
 shopt -s dotglob

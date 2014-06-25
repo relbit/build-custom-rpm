@@ -69,6 +69,7 @@ Requires: rubygem(activerecord-session_store) < 0.2.0
 %setup -q -n %{name}
 
 %build
+echo "%{version}-%{relver}+$(date +'%g%m%d%H%M').$(git rev-parse --short HEAD)" > BUILD
 
 %install
 shopt -s dotglob
