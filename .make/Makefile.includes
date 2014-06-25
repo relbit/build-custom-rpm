@@ -62,7 +62,7 @@ SPECFILE	= $(specdir)/$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec
 build_default: copy prereq dependencies
 	$Vecho "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
 	@+$Vpushd $(rpmdir) $(SILENTOUT) && \
-	if [ "`find . -type f -name \"$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE)*x86_64.rpm\" -mtime -1 `" != "" ]; then \
+	if [ "`find . -type f -name \"$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).*x86_64.rpm\" -mtime -1 `" != "" ]; then \
 		echo "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE) comleted using cached version"; \
 	elif [ "$(RPM_DEP_WEAK)" != "" ] && [ "`find . -type f -name \"$(RPM_NAME)*x86_64.rpm\" -mtime -1 `" != "" ]; then \
 		echo "[Build] $(RPM_NAME) comleted using weakly cached version"; \
