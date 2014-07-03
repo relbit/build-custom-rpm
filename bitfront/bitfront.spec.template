@@ -67,6 +67,8 @@ Requires: rubygem(uuid) >= 2.3.7
 Requires: rubygem(uuid) < 2.4.0
 Requires: rubygem(activerecord-session_store) >= 0.1.0
 Requires: rubygem(activerecord-session_store) < 0.2.0
+Requires: rubygem(rabl) >= 0.10.1
+Requires: rubygem(rabl) < 0.11.0
 
 %description
 %{name}
