@@ -1,8 +1,8 @@
 RPM_NAME         = bitmailer
 RPM_SUMMARY      = bitmailer
 RPM_LICENSE      = Apache Software License
-RPM_VERSION      = 2.0.5
-RPM_RELEASE      = 200
+RPM_VERSION      = 2.0.7
+RPM_RELEASE      = 1
 RPM_SOURCE0      = $(RPM_NAME)-$(RPM_VERSION).tar.gz
 RPM_URL          = gitolite@git.int.prg.relbit.com:bitmailer.git
 RPM_SOURCE_ISGIT = 1
