@@ -59,10 +59,6 @@ cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
 %{__install} -m0644 %{_sourcedir}/etc-logrotate.d-%{name} %{buildroot}/%{_sysconfdir}/logrotate.d/%{name}
 %{__install} -m0755 %{_sourcedir}/usr-sbin-%{name} %{buildroot}/%{_sbindir}/%{name}
 
-%post
-chkconfig --add %{name}
-chkconfig %{name} on
-
 %files
 %defattr(-,root,root)
 %{app_dir}
