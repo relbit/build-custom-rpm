@@ -52,10 +52,6 @@ cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
 %{__install} -m0755 %{_sourcedir}/usr-sbin-%{name}-aggregate %{buildroot}/%{_sbindir}/%{name}-aggregate
 %{__install} -m0755 %{_sourcedir}/usr-sbin-%{name}-collect %{buildroot}/%{_sbindir}/%{name}-collect
 
-%post
-chkconfig --add %{name}
-chkconfig %{name} on
-
 %files
 %defattr(-,root,root)
 %{app_dir}
