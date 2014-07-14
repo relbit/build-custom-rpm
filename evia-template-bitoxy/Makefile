@@ -1,7 +1,7 @@
 RPM_NAME         = evia-template-bitoxy
 RPM_SUMMARY      = evia-template-bitoxy
 RPM_LICENSE      = Apache Software License
-RPM_VERSION      = 2.0.7
+RPM_VERSION      = 2.1.0
 RPM_RELEASE      = 1
 RPM_SOURCE0      = scientific-6-x86_64-evia-bitoxy.tar.gz
 RPM_URL          = http://repo.bts.relbit.com/templates/$(RPM_SOURCE0)
