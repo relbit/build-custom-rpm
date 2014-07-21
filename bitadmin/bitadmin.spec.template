@@ -63,6 +63,8 @@ Requires: rubygem(activerecord-session_store) >= 0.1.0
 Requires: rubygem(activerecord-session_store) < 0.2.0
 Requires: rubygem(rabl) >= 0.10.1
 Requires: rubygem(rabl) < 0.11.0
+Requires: rubygem(popen4) >= 0.1.2
+Requires: rubygem(popen4) < 0.2.0
 
 %description
 %{name}
