@@ -14,7 +14,8 @@ KILL_DELAY=5
 
 BIN_PATH="/usr/sbin/$PROCESS_NAME"
 PID_PATH="/var/run/$PROCESS_NAME.pid"
-OPTIONS="--pid $PID_PATH --daemon"
+LOG_PATH="/opt/$PROCESS_NAME/log/$PROCESS_NAME.log"
+OPTIONS="--pid $PID_PATH --log $LOG_PATH --daemon"
 LOCK_PATH="/var/lock/subsys/$PROCESS_NAME"
 
 start() {
