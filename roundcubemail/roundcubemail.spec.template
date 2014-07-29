@@ -22,7 +22,18 @@ Packager:       RPM_PACKAGER
 %install
 shopt -s dotglob
 mkdir -p %{buildroot}/usr/share/%{name}
-cp -R $RPM_BUILD_DIR/%{name}-%{version}/* %{buildroot}/usr/share/%{name}
+cp -R ${RPM_BUILD_DIR}/%{name}-%{version}/* %{buildroot}/usr/share/%{name}
+
+%{__install} -m0755 %{_sourcedir}/login_logo.png ${RPM_BUILD_ROOT}/usr/share/%{name}/skins/larry/images/login_logo.png
+%{__install} -m0755 %{_sourcedir}/horizontal_logo.png ${RPM_BUILD_ROOT}/usr/share/%{name}/evia_logo.png
+
+sed -e 's@<roundcube:object name="logo" src="/images/roundcube_logo.png" id="logo" />@<img src="./skins/larry/images/login_logo.png" alt="Login logo" border="0" id="logo" />@g' -i ${RPM_BUILD_ROOT}/usr/share/%{name}/skins/larry/templates/login.html
+
+sed -e 's@#login-form .box-inner{width:430px;background:url(images/linen_login.jpg?v=0484.10363) top left no-repeat #5c5c5c;margin:0 50px;padding:10px 24px 24px 24px@#login-form .box-inner{width:430px;background:url(images/linen_login.jpg?v=0484.10363) top left no-repeat #5c5c5c;margin:0 50px;padding:10px 24px 16px 24px@g' -i ${RPM_BUILD_ROOT}/usr/share/%{name}/skins/larry/styles.min.css
+
+sed -e 's@#login-form #logo{margin-bottom:20px;border:0}@#login-form #logo{margin-bottom:0px;border:0}@g' -i ${RPM_BUILD_ROOT}/usr/share/%{name}/skins/larry/styles.min.css
+
+
 
 %files
 /usr/share/%{name}/.htaccess
@@ -30,4 +41,3 @@ cp -R $RPM_BUILD_DIR/%{name}-%{version}/* %{buildroot}/usr/share/%{name}
 %defattr(777,root,root,777)
 %attr(-,root,root) /usr/share/%{name}/logs
 %attr(-,root,root) /usr/share/%{name}/temp
-
