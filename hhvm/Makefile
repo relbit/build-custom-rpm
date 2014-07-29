@@ -22,6 +22,10 @@ include $(MAKEDIR)Makefile.includes
 include $(MAKEDIR)Makefile.pkg_stdrules
 
 download:
+	$Vpushd hhvm/third-party/double-conversion $(SILENTOUT) && \
+	curl -L http://double-conversion.googlecode.com/files/double-conversion-1.1.5.tar.gz \
+		-o double-conversion.tar.gz && \
+	popd $(SILENTOUT)
 	$Vpushd hhvm/third-party/folly/src $(SILENTOUT) && \
 	git checkout -f 18fd7eb11b312efc4c011e51fe4582cf597bc6a0 && \
 	popd $(SILENTOUT)

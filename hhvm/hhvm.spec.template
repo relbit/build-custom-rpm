@@ -57,21 +57,19 @@ modphp.
 %setup -q -n %{name} -D
 cd third-party/double-conversion
 tar xf double-conversion.tar.gz
-#cp -f ../folly/src/folly/SConstruct.double-conversion .
 
 %build
 pushd third-party/double-conversion
 DCDIR=`pwd`
-#scons -s SConstruct.double-conversion
-cmake .
-make
+scl enable devtoolset-2 "cmake ."
+scl enable devtoolset-2 "make"
 popd
 
 pushd third-party/folly/src/folly
 autoreconf -ivf
 LDFLAGS="$LDFLAGS -L$DCDIR"
 CPPFLAGS="$CPPFLAGS -I$DCDIR"
-./configure
+scl enable devtoolset-2 "./configure"
 popd
 
 export HPHP_HOME=`pwd`
