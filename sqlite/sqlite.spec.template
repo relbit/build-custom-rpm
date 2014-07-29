@@ -1,0 +1,152 @@
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+# bcond default logic is nicely backwards...
+%bcond_without tcl
+%bcond_with static
+%bcond_without check
+
+Group: Applications/Databases
+BuildRequires: ncurses-devel readline-devel glibc-devel
+BuildRequires: autoconf
+%if %{with tcl}
+BuildRequires: /usr/bin/tclsh
+BuildRequires: tcl-devel
+%{!?tcl_version: %global tcl_version 8.5}
+%{!?tcl_sitearch: %global tcl_sitearch %{_libdir}/tcl%{tcl_version}}
+%endif
+BuildRoot: %{_tmppath}/%{name}-root
+
+%description
+SQLite is a C library that implements an SQL database engine. A large
+subset of SQL92 is supported. A complete database is stored in a
+single disk file. The API is designed for convenience and ease of use.
+Applications that link against SQLite can enjoy the power and
+flexibility of an SQL database without the administrative hassles of
+supporting a separate database server.  Version 2 and version 3 binaries
+are named to permit each to be installed on a single host
+
+%package devel
+Summary: Development tools for the sqlite3 embeddable SQL database engine
+Group: Development/Libraries
+Requires: %{name} = %{version}-%{release}
+Requires: pkgconfig
+
+%description devel
+This package contains the header files and development documentation 
+for %{name}. If you like to develop programs using %{name}, you will need 
+to install %{name}-devel.
+
+%package -n lemon
+Summary: A parser generator
+Group: Development/Tools
+
+%description -n lemon
+Lemon is an LALR(1) parser generator for C or C++. It does the same
+job as bison and yacc. But lemon is not another bison or yacc
+clone. It uses a different grammar syntax which is designed to reduce
+the number of coding errors. Lemon also uses a more sophisticated
+parsing engine that is faster than yacc and bison and which is both
+reentrant and thread-safe. Furthermore, Lemon implements features
+that can be used to eliminate resource leaks, making is suitable for
+use in long-running programs such as graphical user interfaces or
+embedded controllers.
+
+%if %{with tcl}
+%package tcl
+Summary: Tcl module for the sqlite3 embeddable SQL database engine
+Group: Development/Languages
+Requires: %{name} = %{version}-%{release}
+Requires: tcl(abi) = %{tcl_version}
+
+%description tcl
+This package contains the tcl modules for %{name}.
+%endif
+
+%prep
+%setup -q -n sqlite-src-%{version_enc}
+
+%build
+autoconf
+export CFLAGS="$RPM_OPT_FLAGS -DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_DISABLE_DIRSYNC=1 -DSQLITE_ENABLE_FTS3=3 -DSQLITE_ENABLE_RTREE=1 -Wall -fno-strict-aliasing"
+%configure %{!?with_tcl:--disable-tcl} \
+           --enable-threadsafe \
+           --enable-load-extension \
+           %{?with_tcl:TCLLIBDIR=%{tcl_sitearch}/sqlite3}
+
+# rpath removal
+sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+
+make %{?_smp_mflags}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+
+make DESTDIR=${RPM_BUILD_ROOT} install
+
+install -D -m0644 sqlite3.1 $RPM_BUILD_ROOT/%{_mandir}/man1/sqlite3.1
+install -D -m0755 lemon $RPM_BUILD_ROOT/%{_bindir}/lemon
+install -D -m0644 tool/lempar.c $RPM_BUILD_ROOT/%{_datadir}/lemon/lempar.c
+
+%if %{with tcl}
+# fix up permissions to enable dep extraction
+chmod 0755 ${RPM_BUILD_ROOT}/%{tcl_sitearch}/sqlite3/*.so
+%endif
+
+%if ! %{with static}
+rm -f $RPM_BUILD_ROOT/%{_libdir}/*.{la,a}
+%endif
+
+%if %{with check}
+%check
+# let this fail for now:
+# - five nan-test broken on PPC (upstream ticket #3404)
+# - bunch of rtree-tests failing on PPC atm
+make test ||:
+%endif
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%files
+%defattr(-, root, root)
+%{_bindir}/sqlite3
+%{_libdir}/*.so.*
+%{_mandir}/man?/*
+
+%files devel
+%defattr(-, root, root)
+%{_includedir}/*.h
+%{_libdir}/*.so
+%{_libdir}/pkgconfig/*.pc
+%if %{with static}
+%{_libdir}/*.a
+%exclude %{_libdir}/*.la
+%endif
+
+%files -n lemon
+%defattr(-, root, root)
+%{_bindir}/lemon
+%{_datadir}/lemon
+
+%if %{with tcl}
+%files tcl
+%defattr(-, root, root)
+%{tcl_sitearch}/sqlite3
+%endif
+
