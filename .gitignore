@@ -1,3 +1,4 @@
 *.swp
 Makefile.settings
+.yum_lock
 */.make_lock
