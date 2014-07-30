@@ -36,9 +36,9 @@ BuildRequires:	boost-devel >= 1.48, libmemcached-devel >= 0.39
 BuildRequires:	elfutils-devel, elfutils-libelf-devel
 BuildRequires:	binutils-devel >= 2.20
 BuildRequires:	ImageMagick-devel, ImageMagick-c++-devel
-BuildRequires:	gflags-devel
+BuildRequires:	gflags-devel, libdwarf-static >= 20130729, libdwarf >= 20130729
 Requires:       libglog >= 0.3.3, jemalloc >= 3.0, tbb >= 4.0
-Requires:	libmcrypt >= 2.5.8, libdwarf >= 20130729, lidwarf-static
+Requires:	libmcrypt >= 2.5.8
 Requires:	boost >= 1.48, libmemcached >= 0.39
 Requires:	gflags
 
