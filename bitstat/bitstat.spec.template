@@ -35,7 +35,7 @@ Requires: rubygem(rspec) >= 3.0.0
 Requires: rubygem(rspec) < 3.1.0
 Requires: rubygem(rack-test) >= 0.6.2
 Requires: rubygem(rack-test) < 0.7.0
-Requires: rubygem(mongo >= 1.10.1
+Requires: rubygem(mongo) >= 1.10.1
 Requires: rubygem(mongo) < 1.11.0
 Requires: rubygem(bson_ext) >= 1.10.1
 Requires: rubygem(bson_ext) < 1.11.0
