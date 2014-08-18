@@ -1,7 +1,7 @@
 RPM_NAME         = evia-release
 RPM_SUMMARY      = evia-release
 RPM_LICENSE      = Apache Software License
-RPM_VERSION      = 2.1.0
+RPM_VERSION      = 2.2.0
 RPM_RELEASE      = 1
 RPM_SOURCE0      = $(RPM_NAME)-$(RPM_VERSION).tar.gz
 RPM_URL          = gitolite@git.int.prg.relbit.com:evia-release.git
