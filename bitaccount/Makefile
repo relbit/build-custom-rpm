@@ -1,7 +1,7 @@
 RPM_NAME         = bitaccount
 RPM_SUMMARY      = bitaccount
 RPM_LICENSE      = Apache Software License
-RPM_VERSION      = 2.1.0
+RPM_VERSION      = 2.2.0
 RPM_RELEASE      = 1
 RPM_SOURCE0      = $(RPM_NAME)-$(RPM_VERSION).tar.gz
 RPM_URL          = gitolite@git.int.prg.relbit.com:bitaccount.git
