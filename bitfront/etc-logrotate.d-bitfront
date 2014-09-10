@@ -1,4 +1,4 @@
-/opt/bitfront/log/development.log {
+/opt/bitfront/log/*.log {
     copytruncate
     weekly
     minsize 10M

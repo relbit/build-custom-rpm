@@ -101,6 +101,9 @@ ln -s %{models_dir} %{app_dir}/app/models
 chkconfig --add %{name}
 chkconfig %{name} on
 
+%postun
+rm -rf %{app_dir}/tmp
+
 %files
 %defattr(-,root,root)
 %{app_dir}

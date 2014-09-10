@@ -12,15 +12,17 @@
 PROCESS_NAME="bitfront"
 PORT=5002
 KILL_DELAY=5
+CD="/opt/bitfront"
+ENV="production"
 
-BIN_PATH="/usr/sbin/$PROCESS_NAME"
 PID_PATH="/var/run/$PROCESS_NAME.pid"
-OPTIONS="--port $PORT --pid $PID_PATH --daemon"
 LOCK_PATH="/var/lock/subsys/$PROCESS_NAME"
+
+CMD="cd $CD && rails server --port $PORT --environment $ENV --pid $PID_PATH --daemon"
 
 start() {
     echo -n "Starting $PROCESS_NAME: "
-    daemon --pidfile $PID_PATH $BIN_PATH $OPTIONS
+    daemon --pidfile $PID_PATH $CMD
     retval=$?
     echo
     [ $retval -eq 0 ] && touch $LOCK_PATH
