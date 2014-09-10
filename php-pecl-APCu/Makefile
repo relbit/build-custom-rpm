@@ -1,16 +1,18 @@
 RPM_PHP_NAME	= php53
+RPM_PHP_VERSION = 5.3.29
 RPM_EXT_NAME	= APCu
 RPM_SUMMARY     = APCu extension
 RPM_LICENSE     = PHP License
-RPM_VERSION     = 4.0.4
-RPM_RELEASE     = 1
+RPM_VERSION     = 4.0.6
+RPM_RELEASE     = 2
 RPM_URL		= http://pecl.php.net/
 RPM_NAME        = $(RPM_PHP_NAME)-pecl-$(RPM_EXT_NAME)
 RPM_SOURCE0     = apcu-$(RPM_VERSION).tgz
 RPM_SOURCEN0	= apcu-$(RPM_VERSION)
+RPM_PREFIX      = /opt/$(RPM_PHP_NAME)
 
 RPM_SPECFILE	= php-pecl-$(RPM_EXT_NAME).spec.template
-RPM_BUILD_DEP	= php install RPM_NAME=$(RPM_PHP_NAME)
+RPM_BUILD_DEP	= php install RPM_NAME=$(RPM_PHP_NAME) RPM_VERSION=$(RPM_PHP_VERSION)
 
 # Makefile internals from here on:
 
