@@ -11,6 +11,9 @@ Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
 %global phpname	RPM_PHP_NAME
 %global extname	RPM_EXT_NAME
+
+%define _prefix RPM_PREFIX
+
 %global sapiver	SAPI_VER
 %global peardir	%{_datadir}/pear
 
@@ -34,13 +37,36 @@ fi;
 
 module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
 
-phpize
-%configure
+%{_prefix}/bin/phpize
+%configure --with-php-config=%{_prefix}/bin/php-config
 make %{?_smp_mflags} CFLAGS="%{optflags}"
 
 echo "zend_extension=%{_libdir}/%{sapiver}/${module_name}.so" > extension.ini
+cat > extension.ini <<EOINI
+zend_extension=%{_libdir}/%{sapiver}/${module_name}.so
+opcache.enable                  = 1
+opcache.enable_cli              = 0
+opcache.interned_strings_buffer = 32
+opcache.max_accelerated_files   = 100000
+opcache.max_wasted_percentage   = 35
+opcache.use_cwd                 = 1
+opcache.revalidate_path         = 1
+opcache.save_comments           = 1
+opcache.load_comments           = 1
+opcache.fast_shutdown           = 0
+opcache.dups_fix                = 0
+;opcache.blacklist_filename     = 
+opcache.max_file_size           = 2097152
+opcache.consistency_checks      = 0
+;opcache.force_restart_timeout  = 10
+;opcache.error_log              = 
+opcache.log_verbosity_level     = 2
+opcache.preferred_memory_model  = mmap
+opcache.protect_memory          = 0
+EOINI
 
 %install
+%{__make} install INSTALL_ROOT=${RPM_BUILD_ROOT}
 if [ ! -f ./config.m4 ]; then
         cd $(dirname `find . -type f -name config.m4`)
 fi;
@@ -48,8 +74,8 @@ fi;
 module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
 
 %{__mkdir_p} ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/
-%{__mkdir_p} ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/
-%{__install} -m0644  extension.ini	  ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/${module_name}.ini
+%{__mkdir_p} ${RPM_BUILD_ROOT}%{_sysconfdir}/%{phpname}/php.d/
+%{__install} -m0644  extension.ini	  ${RPM_BUILD_ROOT}%{_sysconfdir}/%{phpname}/php.d/${module_name}.ini
 %{__install} -m0644 modules/opcache.so ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/${module_name}.so
 
 %clean
@@ -61,6 +87,6 @@ module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/php.d/*.ini
+%config(noreplace) %{_sysconfdir}/%{phpname}/php.d/*.ini
 %{_libdir}/%{sapiver}/*
 
