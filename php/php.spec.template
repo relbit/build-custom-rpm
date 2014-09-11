@@ -8,6 +8,7 @@ URL:            RPM_URL
 Source0:        RPM_SOURCE0
 Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
+%define _prefix RPM_PREFIX
 
 %if "%{version}" == "5.3.28"
 Patch0:		0001-CVE-2014-0185.patch
@@ -64,13 +65,12 @@ pwd
 
 function do_configure() {
 	ln -sf ../configure ./configure
-%configure --prefix=/usr \
-		--with-zend-vm=GOTO \
+%configure --with-zend-vm=GOTO \
 		--enable-dtrace \
 		--cache-file=../config.cache \
 		--with-libdir=%{_lib} \
-		--with-config-file-path=%{_sysconfdir} \
-		--with-config-file-scan-dir=%{_sysconfdir}/php.d \
+		--with-config-file-path=%{_sysconfdir}/%{phpname} \
+		--with-config-file-scan-dir=%{_sysconfdir}/%{phpname}/php.d \
 		--disable-debug \
 		--with-pic \
 		--disable-rpath \
@@ -141,7 +141,7 @@ function do_make {
 	make %{?_smp_mflags} CFLAGS="%{optflags}"
 }
 
-PEAR_INSTALLDIR="%{peardir}"; export PEAR_INSTALLDIR
+PEAR_INSTALLDIR="%{_datadir}/pear"; export PEAR_INSTALLDIR
 EXTRA_CONFIG_FLAGS=
 
 test -f config.cache && rm -f config.cache
@@ -164,18 +164,90 @@ popd
 export INSTALL_ROOT=%{buildroot}; make install -C build-cgi
 export INSTALL_ROOT=%{buildroot}; make install -C build-fpm
 
-%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/rc.d/init.d
-%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/php.d
-%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/php-fpm.d
-%{__mkdir_p} ${RPM_BUILD_ROOT}/var/log/php-fpm
+cat > php-fpm.conf <<EOCONF
+[global]
+pid=/opt/%{phpname}/var/run/php-fpm.pid
+error_log = /var/log/%{phpname}-fpm/error.log
+emergency_restart_threshold = 30
+emergency_restart_interval = 15s
+process_control_timeout = 900
+include=/etc/%{phpname}/php-fpm.d/*.conf
+EOCONF
 
-%{__install} -m0755 %{_sourcedir}/etc-init.d-php-fpm ${RPM_BUILD_ROOT}/etc/rc.d/init.d/php-fpm
-%{__install} -m0755 %{_sourcedir}/etc-php.ini ${RPM_BUILD_ROOT}/etc/php.ini
-%{__install} -m0755 %{_sourcedir}/etc-php-fpm.conf ${RPM_BUILD_ROOT}/etc/php-fpm.conf
+ver=%{version}
+php_ver="`echo $ver | awk -F . '{ print $1$2 }'`"
+
+if [ "$php_ver" = "55" ]; then
+cat > opcache.ini <<EOPINI
+zend_extension=/opt/php55/lib64/20121212/opcache.so
+opcache.enable                  = 1
+opcache.enable_cli              = 0
+opcache.interned_strings_buffer = 32
+opcache.max_accelerated_files   = 100000
+opcache.max_wasted_percentage   = 35
+opcache.use_cwd                 = 1
+opcache.revalidate_path         = 1
+opcache.save_comments           = 1
+opcache.load_comments           = 1
+opcache.fast_shutdown           = 0
+opcache.dups_fix                = 0
+;opcache.blacklist_filename     =
+opcache.max_file_size           = 2097152
+opcache.consistency_checks      = 0
+;opcache.force_restart_timeout  = 10
+;opcache.error_log              =
+opcache.log_verbosity_level     = 2
+opcache.preferred_memory_model  = mmap
+opcache.protect_memory          = 0
+EOPINI
+elif [ "$php_ver" = "56" ]; then
+cat > opcache.ini <<EOPINI
+zend_extension=/opt/php56/lib64/20131226/opcache.so
+opcache.enable                  = 1
+opcache.enable_cli              = 0
+opcache.interned_strings_buffer = 32
+opcache.max_accelerated_files   = 100000
+opcache.max_wasted_percentage   = 35
+opcache.use_cwd                 = 1
+opcache.revalidate_path         = 1
+opcache.save_comments           = 1
+opcache.load_comments           = 1
+opcache.fast_shutdown           = 0
+opcache.dups_fix                = 0
+;opcache.blacklist_filename     =
+opcache.max_file_size           = 2097152
+opcache.consistency_checks      = 0
+;opcache.force_restart_timeout  = 10
+;opcache.error_log              =
+opcache.log_verbosity_level     = 2
+opcache.preferred_memory_model  = mmap
+opcache.protect_memory          = 0
+EOPINI
+else
+cat > opcache.ini <<EOPINI
+EOPINI
+fi
+
+%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/%{phpname}/init.d
+%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/%{phpname}/php.d
+%{__mkdir_p} ${RPM_BUILD_ROOT}/etc/%{phpname}/php-fpm.d
+%{__mkdir_p} ${RPM_BUILD_ROOT}/var/log/%{phpname}-fpm
+
+
+sed -e "s@INIT_PREFIX@RPM_PREFIX@g" \
+    -e "s@INIT_NAME@RPM_NAME@g" \
+    -i %{_sourcedir}/etc-init.d-php-fpm
+
+%{__install} -m0755 %{_sourcedir}/etc-init.d-php-fpm ${RPM_BUILD_ROOT}/etc/%{phpname}/init.d/php-fpm
+%{__install} -m0755 %{_sourcedir}/etc-php.ini ${RPM_BUILD_ROOT}/etc/%{phpname}/php.ini
+%{__install} -m0755 php-fpm.conf ${RPM_BUILD_ROOT}/etc/%{phpname}/php-fpm.conf
+%{__install} -m0755 opcache.ini ${RPM_BUILD_ROOT}/etc/%{phpname}/php.d/opcache.ini
+
+mv ${RPM_BUILD_ROOT}/etc/pear.conf ${RPM_BUILD_ROOT}/etc/%{phpname}/pear.conf
 
 rm -Rf %{buildroot}/.*[^..]
-rm -Rf %{buildroot}/usr/share/fpm
-rm -Rf %{buildroot}/usr/share/pear/.*[^..]
+rm -Rf %{buildroot}%{_prefix}/share/fpm
+rm -Rf %{buildroot}%{_prefix}/share/pear/.*[^..]
 
 %clean
 
@@ -189,36 +261,47 @@ rm -Rf %{buildroot}/usr/share/pear/.*[^..]
 %exclude %{_sbindir}/php-fpm
 %exclude %{_libdir}/build/*
 %exclude %{_mandir}/man8/*
+%exclude %{_mandir}/man1/*
 %exclude %{_sbindir}/php-fpm
 %exclude %{_sysconfdir}/php-fpm.conf.default
-%config(noreplace) %{_sysconfdir}/pear.conf
-%dir %{_sysconfdir}/php.d
-%config(noreplace) %{_sysconfdir}/php.ini
+%config(noreplace) %{_sysconfdir}/%{phpname}/pear.conf
+%dir %{_sysconfdir}/%{phpname}/php.d
+%config %{_sysconfdir}/%{phpname}/php.d/opcache.ini
+%config(noreplace) %{_sysconfdir}/%{phpname}/php.ini
 %{_bindir}/*
 %{_libdir}/*
-%{_mandir}/*
-%{peardir}/*
+
 
 %files fpm
 %defattr(-,root,root)
-%dir %{_sysconfdir}/php-fpm.d
-%config(noreplace) %{_sysconfdir}/php-fpm.conf
-%{_sysconfdir}/rc.d/init.d/php-fpm
+%dir %{_sysconfdir}/%{phpname}/php-fpm.d
+%config(noreplace) %{_sysconfdir}/%{phpname}/php-fpm.conf
+%{_sysconfdir}/%{phpname}/init.d/php-fpm
 %{_sbindir}/php-fpm
-%{_mandir}/man8/php-fpm.8.gz
-%dir %{_localstatedir}/log/php-fpm
+%exclude %{_mandir}/man8/*
+#%{_mandir}/man8/php-fpm.8.gz
+%dir %{_localstatedir}/log/%{phpname}-fpm
+%{_datadir}/pear/*
+
 
 %files devel
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/build/*
+%{_datadir}/pear/*
+
 
 %post fpm
-/sbin/chkconfig --add php-fpm
+ln -s /etc/%{phpname}/init.d/php-fpm /etc/init.d/%{phpname}-fpm
+mkdir -p /opt/%{phpname}/var/run
+/sbin/chkconfig --add %{phpname}-fpm
 
 %preun fpm
 if [ $1 = 0 ]; then
-  /sbin/service php-fpm stop >/dev/null 2>&1 || :
-  /sbin/chkconfig --del php-fpm
+  /sbin/service %{phpname}-fpm stop >/dev/null 2>&1 || :
+  /sbin/chkconfig --del %{phpname}-fpm
+fi
+if [ -e /etc/init.d/%{phpname}-fpm ]; then
+  rm -f /etc/init.d/%{phpname}-fpm
 fi
 
