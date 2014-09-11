@@ -8,11 +8,24 @@ RPM_URL         = none
 
 RPM_SPECFILE	= none
 # Original build line for default versions
-#RPM_BUILD_DEP   = php install; php-pecl-APCu; php-pecl-geoip; php-pecl-igbinary; php-pecl-memcache; php-pecl-mongo; php-pecl-redis; php-pecl-turbo_realpath; php-pecl-ZendOpcache; php-extra-ioncube
+#RPM_BUILD_DEP   = php install; php-pecl-APCu; php-pecl-geoip; php-pecl-igbinary; php-pecl-memcache; php-pecl-mongo; php-pecl-redis; php-pecl-turbo_realpath; php-extra-ioncube; php-pecl-APC
 
 # Experimental PHP 5.6
-RPM_DEP_WEAK	= 1
-RPM_BUILD_DEP   = php install RPM_NAME=php56 RPM_VERSION=5.6.0beta3 RPM_URL=http://downloads.php.net/tyrael/php-5.6.0beta3.tar.gz; php-pecl-geoip RPM_PHP_NAME=php56; php-pecl-igbinary RPM_PHP_NAME=php56; php-pecl-memcache RPM_PHP_NAME=php56; php-pecl-mongo RPM_PHP_NAME=php56; php-pecl-redis RPM_PHP_NAME=php56; php-pecl-turbo_realpath RPM_PHP_NAME=php56; php-extra-ioncube RPM_PHP_NAME=php56
+#RPM_DEP_WEAK	= 1
+RPM_PHP_NAME = php56
+RPM_PHP_VERSION = 5.6.0
+RPM_BUILD_DEP   = php install RPM_NAME=$(RPM_PHP_NAME) RPM_VERSION=$(RPM_PHP_VERSION); php-pecl-geoip RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-igbinary RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-memcache RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-mongo RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-redis RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-turbo_realpath RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-APCu RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION)
+
+# PHP 5.5
+#RPM_PHP_VERSION = 5.5.16
+#RPM_PHP_NAME = php55
+#RPM_BUILD_DEP   = php install RPM_NAME=$(RPM_PHP_NAME) RPM_VERSION=$(RPM_PHP_VERSION); php-pecl-geoip RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-igbinary RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-memcache RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-mongo RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-redis RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-turbo_realpath RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-extra-ioncube RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-APCu RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION)
+
+# PHP 5.4
+#RPM_PHP_VERSION = 5.4.32
+#RPM_PHP_NAME = php54
+#RPM_BUILD_DEP   = php install RPM_NAME=$(RPM_PHP_NAME) RPM_VERSION=$(RPM_PHP_VERSION); php-pecl-geoip RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-igbinary RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-memcache RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-mongo RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-redis RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-turbo_realpath RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-extra-ioncube RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-APCu RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); php-pecl-ZendOpcache RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION)
+
 
 
 # Makefile internals from here on:

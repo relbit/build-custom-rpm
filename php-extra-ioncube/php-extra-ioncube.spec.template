@@ -11,8 +11,8 @@ Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
 %global phpname RPM_PHP_NAME
 %global extname RPM_EXT_NAME
-%global sapiver SAPI_VER
-%global peardir %{_datadir}/pear
+
+%define _prefix RPM_PREFIX
 
 %global sapiver		SAPI_VER
 %global peardir		%{_datadir}/pear
@@ -37,11 +37,14 @@ EOINI
 
 
 %install
+str=%{phpname}
+i=$((${#str}-1))
+LIB_VERSION="${str:$i:1}"
 
 %{__mkdir_p} ${RPM_BUILD_ROOT}/%{_libdir}/%{sapiver}/
-%{__mkdir_p} ${RPM_BUILD_ROOT}/%{_sysconfdir}/php.d/
-%{__install} -m0644 ioncube_loader_lin_5.3.so ${RPM_BUILD_ROOT}/%{_libdir}/%{sapiver}/ioncube.so
-%{__install} -m0644 ioncube.ini ${RPM_BUILD_ROOT}/%{_sysconfdir}/php.d/ioncube.ini
+%{__mkdir_p} ${RPM_BUILD_ROOT}/%{_sysconfdir}/%{phpname}/php.d/
+%{__install} -m0644 ioncube_loader_lin_5.${LIB_VERSION}.so ${RPM_BUILD_ROOT}/%{_libdir}/%{sapiver}/ioncube.so
+%{__install} -m0644 ioncube.ini ${RPM_BUILD_ROOT}/%{_sysconfdir}/%{phpname}/php.d/ioncube.ini
 
 
 
@@ -53,6 +56,6 @@ EOINI
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/php.d/ioncube.ini
+%config(noreplace) %{_sysconfdir}/%{phpname}/php.d/ioncube.ini
 %{_libdir}/%{sapiver}/ioncube.so
 

@@ -62,9 +62,9 @@ SPECFILE	= $(specdir)/$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).spec
 build_default: copy prereq dependencies
 	$Vecho "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE)"
 	@+$Vpushd $(rpmdir) $(SILENTOUT) && \
-	if [ "`find . -type f -name \"$(RPM_NAME)-$(RPM_VERSION)-$(RPM_RELEASE).*x86_64.rpm\" -mtime -1 `" != "" ]; then \
+	if [ "`find $(rpmdir) -type f -name \"$(RPM_NAME)*-$(RPM_VERSION)-$(RPM_RELEASE).*x86_64.rpm\" -mtime -1 `" != "" ]; then \
 		echo "[Build] $(RPM_NAME) $(RPM_VERSION)-$(RPM_RELEASE) comleted using cached version"; \
-	elif [ "$(RPM_DEP_WEAK)" != "" ] && [ "`find . -type f -name \"$(RPM_NAME)*x86_64.rpm\" -mtime -1 `" != "" ]; then \
+	elif [ "$(RPM_DEP_WEAK)" != "" ] && [ "`find $(rpmdir) -type f -name \"$(RPM_NAME)*x86_64.rpm\" -mtime -1 `" != "" ]; then \
 		echo "[Build] $(RPM_NAME) comleted using weakly cached version"; \
 	else \
 		$(RPMBUILD) $(SILENTOUT) && \
@@ -91,6 +91,7 @@ spec_default: lock
 		-e "s/RPM_DISTRIBUTION/$(RPM_DISTRIBUTION)/g" \
 		-e "s/RPM_PACKAGER/$(RPM_PACKAGER)/g" \
 		-e "s/RPM_RELEASE/$(RPM_RELEASE)/g" \
+		-e "s@RPM_PREFIX@$(RPM_PREFIX)@g" \
 		$(RPM_SPECFILE) > $(SPECFILE)
 ifdef RPM_VERSIO2
 	$Vsed	-e "s/RPM_VERSIO2/$(RPM_VERSIO2)/g" \

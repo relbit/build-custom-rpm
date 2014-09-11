@@ -2,3 +2,8 @@
 Makefile.settings
 .yum_lock
 */.make_lock
+*.tar
+*.bz2
+*.gz
+*.tgz
+*.xz

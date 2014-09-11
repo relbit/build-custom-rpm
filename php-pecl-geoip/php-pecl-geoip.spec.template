@@ -11,6 +11,9 @@ Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
 %global phpname	RPM_PHP_NAME
 %global extname	RPM_EXT_NAME
+
+%define _prefix RPM_PREFIX
+
 %global sapiver	SAPI_VER
 %global peardir	%{_datadir}/pear
 
@@ -34,13 +37,14 @@ fi;
 
 module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
 
-phpize
-%configure
+%{_prefix}/bin/phpize
+%configure --with-php-config=%{_prefix}/bin/php-config
 make %{?_smp_mflags} CFLAGS="%{optflags}"
 
 echo "extension=${module_name}.so" > extension.ini
 
 %install
+%{__make} install INSTALL_ROOT=${RPM_BUILD_ROOT}
 if [ ! -f ./config.m4 ]; then
         cd $(dirname `find . -type f -name config.m4`)
 fi;
@@ -48,8 +52,8 @@ fi;
 module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
 
 %{__mkdir_p} ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/
-%{__mkdir_p} ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/
-%{__install} -m0644  extension.ini	  ${RPM_BUILD_ROOT}%{_sysconfdir}/php.d/${module_name}.ini
+%{__mkdir_p} ${RPM_BUILD_ROOT}%{_sysconfdir}/%{phpname}/php.d/
+%{__install} -m0644  extension.ini	  ${RPM_BUILD_ROOT}%{_sysconfdir}/%{phpname}/php.d/${module_name}.ini
 %{__install} -m0644 modules/${module_name}.so ${RPM_BUILD_ROOT}%{_libdir}/%{sapiver}/${module_name}.so
 
 %clean
@@ -61,6 +65,6 @@ module_name="`echo %{extname} | sed -e 's/\(.*\)/\L\1/'`"
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/php.d/*.ini
+%config(noreplace) %{_sysconfdir}/%{phpname}/php.d/*.ini
 %{_libdir}/%{sapiver}/*
 
