@@ -101,6 +101,10 @@ ln -s %{models_dir} %{app_dir}/app/models
 chkconfig --add %{name}
 chkconfig %{name} on
 
+rm -rf %{app_dir}/public/assets/
+cd %{app_dir} && RAILS_ENV=production rake assets:clobber
+cd %{app_dir} && RAILS_ENV=production rake assets:precompile
+
 %postun
 rm -rf %{app_dir}/tmp
 
