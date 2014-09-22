@@ -33,7 +33,10 @@ sed -e 's@#login-form .box-inner{width:430px;background:url(images/linen_login.j
 
 sed -e 's@#login-form #logo{margin-bottom:20px;border:0}@#login-form #logo{margin-bottom:0px;border:0}@g' -i ${RPM_BUILD_ROOT}/usr/share/%{name}/skins/larry/styles.min.css
 
-
+cat >> ${RPM_BUILD_ROOT}/usr/share/%{name}/.htaccess<<EOHT
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+EOHT
 
 %files
 /usr/share/%{name}/.htaccess
