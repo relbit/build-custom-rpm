@@ -21,7 +21,7 @@ Patch3:		0001-CVE-2014-2497.patch
 %global peardir		%{_datadir}/pear
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires: rpm-build, libxml2-devel, openssl-devel, bzip2-devel, curl-devel, enchant-devel, libjpeg-devel, libpng-devel, libXpm-devel, freetype-devel, t1lib-devel, gmp-devel, libc-client-devel, libicu-devel, openldap-devel, libmcrypt-devel, mysql-devel, freetds-devel, postgresql-devel, aspell-devel, libedit-devel, libtidy-devel, libxslt-devel, libmhash-devel, libtool-ltdl-devel, re2c, lemon
+BuildRequires: rpm-build, libxml2-devel, openssl-devel, bzip2-devel, curl-devel, enchant-devel, libjpeg-devel, libpng-devel, libXpm-devel, freetype-devel, t1lib-devel, gmp-devel, libc-client-devel, libicu-devel, openldap-devel, libmcrypt-devel, mysql-devel, freetds-devel, postgresql-devel, aspell-devel, libedit-devel, libtidy-devel, libxslt-devel, libmhash-devel, libtool-ltdl-devel, re2c, lemon, systemtap-sdt-devel
 %description
 PHP Language
 
