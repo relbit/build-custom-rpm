@@ -2,3 +2,4 @@
 
 NGINX=/usr/sbin/nginx
 CONFFILE=/etc/nginx/nginx.conf
+ULIMIT="-n 1024000"

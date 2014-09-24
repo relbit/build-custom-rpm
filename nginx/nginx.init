@@ -42,6 +42,12 @@ SLEEPMSEC=${SLEEPMSEC-200000}
 UPGRADEWAITLOOPS=${UPGRADEWAITLOOPS-5}
 RETVAL=0
 
+# Check if the ULIMIT is set in /etc/default/nginx
+if [ -n "$ULIMIT" ]; then
+        # Set the ulimits
+        ulimit $ULIMIT
+fi
+
 start() {
     echo -n $"Starting $prog: "
 
