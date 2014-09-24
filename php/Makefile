@@ -10,11 +10,8 @@ RPM_PREFIX      = /opt/$(RPM_NAME)
 RPM_SPECFILE	= php.spec.template
 RPM_SOURCES	= etc-init.d-php-fpm etc-php.ini
 
-ifeq ($(RPM_VERSION),5.3.28)
-RPM_SOURCES	+= 0001-CVE-2014-0185.patch \
-		   0001-CVE-2014-0237.patch \
-		   0001-CVE-2014-0238.patch \
-		   0001-CVE-2014-2497.patch
+ifeq ($(RPM_NAME),php53)
+RPM_SOURCES	+= php53-dtrace.patch
 endif
 
 # Makefile internals from here on:

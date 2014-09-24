@@ -10,6 +10,10 @@ Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
 %define _prefix RPM_PREFIX
 
+%if "%{name}" == "php53"
+Patch0:		php53-dtrace.patch
+%endif
+
 %global phpname		RPM_NAME
 %global peardir		%{_datadir}/pear
 
@@ -44,6 +48,10 @@ PHP %{version} - devel
 %prep
 %setup -D -q -n php-%{version}
 [ ! -d build-cgi ] && mkdir build-cgi
+
+%if "%{name}" == "php53"
+%patch0 -p1
+%endif
 
 %build
 echo %{_builddir}
@@ -160,10 +168,7 @@ process_control_timeout = 900
 include=/etc/%{phpname}/php-fpm.d/*.conf
 EOCONF
 
-ver=%{version}
-php_ver="`echo $ver | awk -F . '{ print $1$2 }'`"
-
-if [ "$php_ver" = "55" ]; then
+if [ "%{name}" = "php55" ]; then
 cat > opcache.ini <<EOPINI
 zend_extension=/opt/php55/lib64/20121212/opcache.so
 opcache.enable                  = 1
@@ -186,7 +191,7 @@ opcache.log_verbosity_level     = 2
 opcache.preferred_memory_model  = mmap
 opcache.protect_memory          = 0
 EOPINI
-elif [ "$php_ver" = "56" ]; then
+elif [ "%{name}" = "php56" ]; then
 cat > opcache.ini <<EOPINI
 zend_extension=/opt/php56/lib64/20131226/opcache.so
 opcache.enable                  = 1
