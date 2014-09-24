@@ -1,7 +1,7 @@
 RPM_NAME        = nginx
 RPM_SUMMARY     = High performance web server
 RPM_LICENSE     = 2-clause BSD-like license
-RPM_VERSION     = 1.6.1
+RPM_VERSION     = 1.6.2
 RPM_RELEASE     = 1
 RPM_SOURCE0     = $(RPM_NAME)-$(RPM_VERSION).tar.gz
 RPM_URL         = http://nginx.org/download/$(RPM_SOURCE0)
