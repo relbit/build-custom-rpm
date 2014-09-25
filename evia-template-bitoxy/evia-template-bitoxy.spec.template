@@ -1,4 +1,5 @@
 %define template_dir /vz/template/cache/
+%define template_dataset vz/template/RPM_NAME
 
 Name:           RPM_NAME
 Summary:        RPM_SUMMARY
@@ -31,6 +32,11 @@ mkdir -p %{buildroot}/%{template_dir}
 cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{template_dir} 
 
 %post
+zfs create -p %{template_dataset}
+rm -Rf %{template_dataset}/private
+mkdir -p %{template_dataset}/private
+tar --numeric-owner -xf %{template_dir}/$(basename %{SOURCE0}) -C %{template_dataset}/private
+zfs snapshot %{template_dataset}@%{version}-%{relver}
 
 %files
 %defattr(-,root,root)
