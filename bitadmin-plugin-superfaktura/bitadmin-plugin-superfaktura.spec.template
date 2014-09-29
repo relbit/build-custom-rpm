@@ -42,3 +42,6 @@ cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
 
 %files
 %{app_dir}
+%{_sysconfdir}/cron.d/%{name}
+%{_sysconfdir}/logrotate.d/%{name}
+/opt/bitadmin/plugin/%{name}.yml
