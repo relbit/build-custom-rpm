@@ -1,0 +1,4 @@
+name: superfaktura
+path: /opt/bitadmin-plugin-superfaktura                            # plugin root
+mount: /superfaktura                                               # mounting route to main rails app
+settings_view_file: app/views/superfaktura/index/settings.html.erb # view file displayed in bitadmin view

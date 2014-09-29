@@ -1,3 +1,5 @@
+%define app_dir /opt/%{name}
+
 Name:           RPM_NAME
 Summary:        RPM_SUMMARY
 Version:        RPM_VERSION
@@ -23,39 +25,20 @@ Requires: bitadmin
 %setup -q -n %{name}
 
 %build
+echo "%{version}-%{relver}+$(date +'%g%m%d%H%M').$(git rev-parse --short HEAD)" > BUILD
 
 %install
 shopt -s dotglob
-mkdir -p %{buildroot}/opt/%{name}
+mkdir -p %{buildroot}/%{app_dir}
 rm -Rf $RPM_BUILD_DIR/%{name}/.git*
-cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/opt/%{name}
+cp -R $RPM_BUILD_DIR/%{name}/* %{buildroot}/%{app_dir}
 
-%post
-#!/bin/bash
-
-mkdir -p /opt/bitadmin/plugin
-cat > /opt/bitadmin/plugin/%{name}.yml <<EOF
-name: superfaktura 
-path: /opt/%{name}                            # plugin root
-mount: /superfaktura                                               # mounting route to main rails app
-settings_view_file: app/views/superfaktura/index/settings.html.erb # view file displayed in bitadmin view
-EOF
-
-CRON=/etc/cron.d/%{name}
-CRON_LOG=/opt/bitadmin/log/superfaktura.log
-
-touch $CRON_LOG
-
-cat > $CRON <<EOF
-*/5 * * * * root cd /opt/bitadmin/ && rake superfaktura:send_invoices >> $CRON_LOG
-
-EOF
-chmod 644 $CRON
-
-%preun
-[ -f /opt/bitadmin/plugin/%{name}.yml ] && rm -f /opt/bitadmin/plugin/%{name}.yml
-[ -f /etc/cron.d/%{name} ] && rm -f /etc/cron.d/%{name}
-
+%{__mkdir_p} %{buildroot}/%{_sysconfdir}/logrotate.d
+%{__mkdir_p} %{buildroot}/%{_sysconfdir}/cron.d
+%{__mkdir_p} %{buildroot}/opt/bitadmin/plugin/
+%{__install} -m0644 %{_sourcedir}/etc-logrotate.d-%{name} %{buildroot}/%{_sysconfdir}/logrotate.d/%{name}
+%{__install} -m0644 %{_sourcedir}/etc-cron.d-%{name} %{buildroot}/%{_sysconfdir}/cron.d/%{name}
+%{__install} -m0644 %{_sourcedir}/%{name}.yml %{buildroot}/opt/bitadmin/plugin/
 
 %files
-/opt/%{name}/*
+%{app_dir}

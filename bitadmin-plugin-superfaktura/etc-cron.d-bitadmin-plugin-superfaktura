@@ -1,0 +1,2 @@
+*/5 * * * * root cd /opt/bitadmin/ && rake superfaktura:send_invoices >> /opt/bitadmin/log/superfaktura.log
+
