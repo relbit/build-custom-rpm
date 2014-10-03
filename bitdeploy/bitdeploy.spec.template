@@ -34,7 +34,6 @@ Requires: evia-template-my
 Requires: evia-template-nat
 Requires: evia-template-nfs
 Requires: evia-template-ngx
-Requires: evia-template-pma
 Requires: evia-template-relay
 Requires: evia-template-uv
 Requires: evia-template-vns
