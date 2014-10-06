@@ -42,6 +42,7 @@ $cfg['ThemeDefault']          = 'original';
 $cfg['PmaNoRelation_DisableWarning'] = true;
 $cfg['ShowCreateDb']          = FALSE;
 $cfg['HideServerLinksTabs']   = array('status', 'settings', 'vars');
+$cfg['VersionCheck']          = FALSE;
 /*
  * Directories for saving/loading files from server
  */
