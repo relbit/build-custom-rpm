@@ -1,0 +1,39 @@
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+Group: Development/Libraries
+Buildroot: %{_tmppath}/%{name}-root
+
+%description
+A tool for generating C-based recognizers from regular expressions
+
+%prep
+%setup -D -n %{sourcen0}
+
+%build
+./configure --prefix=/usr --libdir=%{_libdir}
+make prefix=${RPM_BUILD_ROOT}/usr %{?_smp_flags}
+#make prefix=${RPM_BUILD_ROOT}/usr %{?_smp_flags}
+
+%install
+make prefix=${RPM_BUILD_ROOT}/usr libdir=${RPM_BUILD_ROOT}/usr/lib64 install
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+/usr/bin/re2c
+/usr/share/man/man1/re2c.1.gz
+
