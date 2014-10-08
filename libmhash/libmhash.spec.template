@@ -1,0 +1,63 @@
+Name:           RPM_NAME
+Summary:        RPM_SUMMARY
+Version:        RPM_VERSION
+%define         version_enc     RPM_VERSIO2
+%define         relver          RPM_RELEASE
+Release:        %{relver}%{?dist}
+License:        RPM_LICENSE
+URL:            RPM_URL
+Source0:        RPM_SOURCE0
+%define         sourcen0        RPM_SOURCEN0
+Distribution:   RPM_DISTRIBUTION
+Packager:       RPM_PACKAGER
+
+Group: Development/Libraries
+Buildroot: %{_tmppath}/%{name}-root
+
+%description
+The %name is a library that provides a uniform interface to several hash algorithms. It supports the basics for message authentication by following rfc2104 (HMAC). It also includes some key generation algorithms which are based on hash algorithms.
+
+%package devel
+Summary: Libmhash is a library that provides a uniform interface to several hash algorithms
+Group: Development/Libraries
+Requires: libmhash
+
+%description devel
+The %name-devel package contains static and debug libraries and header
+files for developing applications that use the %name package.
+
+%prep
+%setup -D -n %{sourcen0}
+
+%build
+./configure --prefix=/usr --libdir=%{_libdir}
+make prefix=${RPM_BUILD_ROOT}/usr %{?_smp_flags}
+#make prefix=${RPM_BUILD_ROOT}/usr %{?_smp_flags}
+
+%install
+make prefix=${RPM_BUILD_ROOT}/usr libdir=${RPM_BUILD_ROOT}/usr/lib64 install
+#make prefix=${RPM_BUILD_ROOT}/usr libdir=${RPM_BUILD_ROOT}/usr/lib64 install
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+/usr/include/mhash.h
+/usr/include/mutils/mglobal.h
+/usr/include/mutils/mhash.h
+/usr/include/mutils/mhash_config.h
+/usr/include/mutils/mincludes.h
+/usr/include/mutils/mtypes.h
+/usr/include/mutils/mutils.h
+/usr/lib64/libmhash.a
+/usr/lib64/libmhash.la
+/usr/lib64/libmhash.so
+/usr/lib64/libmhash.so.2
+/usr/lib64/libmhash.so.2.0.1
+/usr/share/man/man3/mhash.3.gz
+
+
+%files devel
+%defattr(-,root,root)
