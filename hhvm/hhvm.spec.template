@@ -11,9 +11,6 @@ Source0:        RPM_SOURCE0
 Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
 
-Source1:	hhvm.init
-Source2:	hhvm.sysconfig
-
 %define hhvm_dir %{_var}/hhvm
 %define hhvm_user hhvm
 %global _enable_debug_package 0
@@ -21,26 +18,15 @@ Source2:	hhvm.sysconfig
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 Group:          Development/Compiler
-BuildRequires:	devtoolset-2
-BuildRequires:  gcc >= 4.8.0, cmake28 >= 2.8.7, libevent-devel >= 1.4 
-BuildRequires:	libcurl-devel >= 7.19
-BuildRequires:	libglog-devel >= 0.3.3, jemalloc-devel >= 3.0, tbb-devel >= 4.0
-BuildRequires:	libmcrypt-devel >= 2.5.8, libdwarf-devel >= 20130729
-BuildRequires:	mysql-devel libxml2-devel libicu-devel
-BuildRequires:  libxslt-devel, expat, expat-devel, openssl-devel
-BuildRequires:	openldap-devel
-BuildRequires:	oniguruma-devel readline-devel libc-client-devel pam-devel
-BuildRequires:	libcap-devel libedit-devel pcre-devel gd-devel sqlite-devel
-BuildRequires:	inotify-tools-devel 
-BuildRequires:	boost-devel >= 1.48, libmemcached-devel >= 0.39 
-BuildRequires:	elfutils-devel, elfutils-libelf-devel
-BuildRequires:	binutils-devel >= 2.20
-BuildRequires:	ImageMagick-devel, ImageMagick-c++-devel
-BuildRequires:	gflags-devel, libdwarf-static >= 20130729, libdwarf >= 20130729
-Requires:       libglog >= 0.3.3, jemalloc >= 3.0, tbb >= 4.0
-Requires:	libmcrypt >= 2.5.8
-Requires:	boost >= 1.48, libmemcached >= 0.39
-Requires:	gflags
+BuildRequires:	llvm-devel
+BuildRequires:	boost-devel, mariadb-devel, libmemcached-devel, libevent-devel
+BuildRequires:	libcurl-devel, libxml2-devel, unixODBC-devel, libxslt-devel
+BuildRequires:	expat-devel, libicu-devel, tbb-devel, libmcrypt-devel
+BuildRequires:	bzip2-devel, oniguruma-devel, openldap-devel, readline-devel
+BuildRequires:	elfutils-libelf-devel, libdwarf-devel, libcap-devel
+BuildRequires:	binutils-devel, ImageMagick-c++-devel, ImageMagick-devel
+BuildRequires:	libyaml-devel, libvpx-devel, libpng-devel, sqlite-devel
+BuildRequires:	gperftools-libs, lz4-devel libzip-devel
 
 %description
 HipHop VM (HHVM) is a new open-source virtual machine designed for executing 
@@ -55,28 +41,11 @@ modphp.
 
 %prep
 %setup -q -n %{name} -D
-cd third-party/double-conversion
-tar xf double-conversion.tar.gz
 
 %build
-pushd third-party/double-conversion
-DCDIR=`pwd`
-scl enable devtoolset-2 "cmake ."
-scl enable devtoolset-2 "make"
-popd
 
-pushd third-party/folly/src/folly
-autoreconf -ivf
-LDFLAGS="$LDFLAGS -L$DCDIR"
-CPPFLAGS="$CPPFLAGS -I$DCDIR"
-scl enable devtoolset-2 "./configure"
-popd
-
-export HPHP_HOME=`pwd`
-export CPLUS_INCLUDE_PATH=/usr/include/libdwarf
-scl enable devtoolset-2 "cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr \
-	-DLIBINOTIFY_LIBRARY=/usr/lib64/libinotifytools.so.0 ."
-scl enable devtoolset-2 "make %{?_smp_mflags}"
+./configure
+make %{?_smp_mflags}
 
 
 %install
@@ -84,8 +53,6 @@ export DONT_STRIP=1
 rm -rf $RPM_BUILD_ROOT
 %{__install} -p -D -m 0755 hphp/hhvm/hhvm %{buildroot}%{_bindir}/hhvm
 %{__install} -p -D -m 0755 hphp/tools/hphpize/hphpize %{buildroot}%{_bindir}/hphpize
-%{__install} -p -D -m 0755 %{SOURCE1} %{buildroot}%{_initddir}/%{name}
-%{__install} -p -D -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/%{name}_default
 
 find %{buildroot}
 
@@ -103,22 +70,12 @@ find %{buildroot}
 rm -rf $RPM_BUILD_ROOT
 
 %post
-if [ $1 == 1 ]; then
-    /sbin/chkconfig --add %{name}
-fi
-
 
 %preun
-if [ $1 = 0 ]; then
-    /sbin/service %{name} stop >/dev/null 2>&1
-    /sbin/chkconfig --del %{name}
-fi
 
 %files
 %defattr(-,root,root,-)
 %dir %{_var}/run/%{name}
-%{_initddir}/%{name}
-%config(noreplace) %{_sysconfdir}/sysconfig/%{name}_default
 %{_bindir}/hhvm
 %{_bindir}/hphpize
 

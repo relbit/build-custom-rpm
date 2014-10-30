@@ -1,9 +1,0 @@
-USER="apache"
-IP="127.0.0.1"
-PORT="9000"
-TYPE="fastcgi"
-CONFIG="/etc/hhvm/default.hdf"
-#LOGFILE="-vLog.File=/your/log/file"
-
-OPTIONS="-vServer.Type=$TYPE -vServer.IP=$IP -vServer.Port=$PORT -vEval.Jit=true -vEval.JitWarmupRequests=0"
-
