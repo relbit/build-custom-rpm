@@ -8,6 +8,8 @@ RPM_URL         = https://wcoserver.googlecode.com/files/$(RPM_SOURCE0)
 
 RPM_SOURCES	= mod_fastcgi.te
 
+RPM_BUILD_DEP	= httpd22 install;
+
 # Makefile internals from here on:
 
 MAKEDIR = $(shell pwd)/../.make/
