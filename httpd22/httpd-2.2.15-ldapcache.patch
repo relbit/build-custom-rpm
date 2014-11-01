@@ -1,0 +1,37 @@
+
+http://svn.apache.org/viewvc?view=revision&revision=963086
+
+https://bugzilla.redhat.com/show_bug.cgi?id=676635
+
+--- httpd-2.2.15/modules/ldap/util_ldap_cache_mgr.c.ldapcache
++++ httpd-2.2.15/modules/ldap/util_ldap_cache_mgr.c
+@@ -605,7 +605,8 @@ char *util_ald_cache_display(request_rec
+ 
+ 
+     if (!util_ldap_cache) {
+-        return "<tr valign='top'><td nowrap colspan=7>Cache has not been enabled/initialised.</td></tr>";
++        ap_rputs("<tr valign='top'><td nowrap colspan=7>Cache has not been enabled/initialised.</td></tr>", r);
++        return NULL;
+     }
+ 
+     if (r->args && strlen(r->args)) {
+--- httpd-2.2.15/modules/ldap/util_ldap.c.ldapcache
++++ httpd-2.2.15/modules/ldap/util_ldap.c
+@@ -1909,6 +1909,9 @@ static void *util_ldap_create_config(apr
+     return st;
+ }
+ 
++/* cache-related settings are not merged here, but in the post_config hook,
++ * since the cache has not yet sprung to life
++ */
+ static void *util_ldap_merge_config(apr_pool_t *p, void *basev,
+                                     void *overridesv)
+ {
+@@ -2055,6 +2058,7 @@ static int util_ldap_post_config(apr_poo
+             st_vhost->cache_shm = st->cache_shm;
+             st_vhost->cache_rmm = st->cache_rmm;
+             st_vhost->cache_file = st->cache_file;
++            st_vhost->util_ldap_cache = st->util_ldap_cache;
+             ap_log_error(APLOG_MARK, APLOG_DEBUG, result, s,
+                          "LDAP merging Shared Cache conf: shm=0x%pp rmm=0x%pp "
+                          "for VHOST: %s", st->cache_shm, st->cache_rmm,

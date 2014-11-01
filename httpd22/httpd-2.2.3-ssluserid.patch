@@ -1,0 +1,12 @@
+diff --git a/modules/ssl/ssl_engine_vars.c b/modules/ssl/ssl_engine_vars.c
+index 83cff2c..2a997b7 100644
+--- a/modules/ssl/ssl_engine_vars.c
++++ b/modules/ssl/ssl_engine_vars.c
+@@ -432,6 +432,7 @@ static const struct {
+     { "D",     NID_description,            1 },
+ #ifdef NID_userId
+     { "UID",   NID_x500UniqueIdentifier,   1 },
++    { "userID", NID_userId,                1 },
+ #endif
+     { "Email", NID_pkcs9_emailAddress,     1 },
+     { NULL,    0,                          0 }

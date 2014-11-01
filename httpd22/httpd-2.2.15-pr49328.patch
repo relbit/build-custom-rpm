@@ -1,0 +1,53 @@
+--- httpd-2.2.15/include/util_filter.h.pr49328
++++ httpd-2.2.15/include/util_filter.h
+@@ -221,10 +221,13 @@ struct ap_filter_rec_t {
+     /** The function to call when this filter is invoked. */
+     ap_filter_func filter_func;
+ 
+-    /** The function to call before the handlers are invoked. Notice
+-     * that this function is called only for filters participating in
+-     * the http protocol. Filters for other protocols are to be
+-     * initialized by the protocols themselves.
++    /** The function to call directly before the handlers are invoked
++     * for a request.  The init function is called once directly
++     * before running the handlers for a request or subrequest.  The
++     * init function is never called for a connection filter (with
++     * ftype >= AP_FTYPE_CONNECTION).  Any use of this function for
++     * filters for protocols other than HTTP is specified by the
++     * module supported that protocol.
+      */
+     ap_init_filter_func filter_init_func;
+ 
+--- httpd-2.2.15/server/config.c.pr49328
++++ httpd-2.2.15/server/config.c
+@@ -306,10 +306,14 @@ AP_CORE_DECLARE(ap_conf_vector_t *) ap_c
+     return create_empty_config(p);
+ }
+ 
+-static int ap_invoke_filter_init(ap_filter_t *filters)
++/* Invoke the filter_init_func for all filters with FILTERS where f->r
++ * matches R.  Restricting to a matching R avoids re-running init
++ * functions for filters configured for r->main where r is a
++ * subrequest.  */
++static int invoke_filter_init(request_rec *r, ap_filter_t *filters)
+ {
+     while (filters) {
+-        if (filters->frec->filter_init_func) {
++        if (filters->frec->filter_init_func && filters->r == r) {
+             int result = filters->frec->filter_init_func(filters);
+             if (result != OK) {
+                 return result;
+@@ -342,11 +346,11 @@ AP_CORE_DECLARE(int) ap_invoke_handler(r
+      * run their init function to let them do any magic before we could
+      * start generating data.
+      */
+-    result = ap_invoke_filter_init(r->input_filters);
++    result = invoke_filter_init(r, r->input_filters);
+     if (result != OK) {
+         return result;
+     }
+-    result = ap_invoke_filter_init(r->output_filters);
++    result = invoke_filter_init(r, r->output_filters);
+     if (result != OK) {
+         return result;
+     }

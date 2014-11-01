@@ -1,0 +1,78 @@
+diff --git a/include/util_ldap.h b/include/util_ldap.h
+index 75a9d70..81d46a4 100644
+--- a/include/util_ldap.h
++++ b/include/util_ldap.h
+@@ -148,6 +148,7 @@ typedef struct util_ldap_state_t {
+     char *lock_file;           /* filename for shm lock mutex */
+     long  connectionTimeout;
+     int   verify_svr_cert;
++    int   chase_referrals;
+ 
+ } util_ldap_state_t;
+ 
+diff --git a/modules/ldap/util_ldap.c b/modules/ldap/util_ldap.c
+index a894b6e..b116149 100644
+--- a/modules/ldap/util_ldap.c
++++ b/modules/ldap/util_ldap.c
+@@ -260,6 +260,9 @@ static int uldap_connection_init(request_rec *r,
+     /* always default to LDAP V3 */
+     ldap_set_option(ldc->ldap, LDAP_OPT_PROTOCOL_VERSION, &version);
+ 
++    /* referrals */
++    ldap_set_option(ldc->ldap, LDAP_OPT_REFERRALS, st->chase_referrals ? LDAP_OPT_ON : LDAP_OPT_OFF);
++
+     /* set client certificates */
+     if (!apr_is_empty_array(ldc->client_certs)) {
+         apr_ldap_set_option(r->pool, ldc->ldap, APR_LDAP_OPT_TLS_CERT,
+@@ -1776,6 +1779,29 @@ static const char *util_ldap_set_verify_srv_cert(cmd_parms *cmd,
+ }
+ 
+ 
++static const char *util_ldap_set_chase_referrals(cmd_parms *cmd,
++						 void *dummy,
++						 int mode)
++{
++    util_ldap_state_t *st =
++    (util_ldap_state_t *)ap_get_module_config(cmd->server->module_config,
++					      &ldap_module);
++    const char *err = ap_check_cmd_context(cmd, GLOBAL_ONLY);
++
++    if (err != NULL) {
++	return err;
++    }
++
++    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, cmd->server,
++		      "LDAP: chase referrals - %s",
++		      mode?"TRUE":"FALSE");
++
++    st->chase_referrals = mode;
++
++    return(NULL);
++}
++
++
+ static const char *util_ldap_set_connection_timeout(cmd_parms *cmd,
+                                                     void *dummy,
+                                                     const char *ttl)
+@@ -1833,6 +1859,7 @@ static void *util_ldap_create_config(apr_pool_t *p, server_rec *s)
+     st->secure_set = 0;
+     st->connectionTimeout = 10;
+     st->verify_svr_cert = 1;
++    st->chase_referrals = 1;
+ 
+     return st;
+ }
+@@ -2130,7 +2157,12 @@ static const command_rec util_ldap_cmds[] = {
+                   NULL, RSRC_CONF,
+                   "Specify the LDAP socket connection timeout in seconds "
+                   "(default: 10)"),
+-
++    AP_INIT_FLAG("LDAPChaseReferrals", util_ldap_set_chase_referrals,
++		  NULL, RSRC_CONF,
++		  "Set to 'ON' requires that LDAP referrals are searched.  Default 'ON'"),
++    AP_INIT_FLAG("LDAPReferrals", util_ldap_set_chase_referrals,
++		  NULL, RSRC_CONF,
++		  "Set to 'ON' requires that LDAP referrals are searched.  Default 'ON'"),
+     {NULL}
+ };
+ 

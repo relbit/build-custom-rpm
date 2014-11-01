@@ -1,0 +1,142 @@
+--- httpd-2.2.15.orig/modules/aaa/mod_authnz_ldap.c	2012-06-05 00:09:15.124590681 +0200
++++ httpd-2.2.15/modules/aaa/mod_authnz_ldap.c	2012-06-05 16:18:19.289490262 +0200
+@@ -334,6 +334,45 @@
+     return APR_SUCCESS;
+ }
+ 
++#ifndef AUTHZ_PREFIX
++# define AUTHZ_PREFIX "AUTHORIZE_"
++#endif
++static int set_request_vars(request_rec *r, authn_ldap_config_t *sec, const char **vals,
++			    int is_authn)
++{
++    char *prefix = NULL;
++    int prefix_len;
++    int remote_user_attribute_set = 0;
++
++    prefix = (is_authn) ? AUTHN_PREFIX : AUTHZ_PREFIX;
++    prefix_len = strlen(prefix);
++
++    /* add environment variables */
++    if (sec->attributes && vals) {
++        apr_table_t *e = r->subprocess_env;
++        int i = 0;
++        while (sec->attributes[i]) {
++            char *str = apr_pstrcat(r->pool, prefix, sec->attributes[i], NULL);
++            int j = prefix_len;
++            while (str[j]) {
++                str[j] = apr_toupper(str[j]);
++                j++;
++            }
++            apr_table_setn(e, str, vals[i]);
++
++            /* handle remote_user_attribute, if set */
++            if (is_authn && sec->remote_user_attribute && 
++                !strcmp(sec->remote_user_attribute, sec->attributes[i])) {
++                r->user = (char *)apr_pstrdup(r->pool, vals[i]);
++                remote_user_attribute_set = 1;
++            }
++            i++;
++        }
++    }
++
++    return remote_user_attribute_set;
++}
++
+ 
+ /*
+  * Authentication Phase
+@@ -461,28 +500,7 @@
+         r->user = req->dn;
+     }
+ 
+-    /* add environment variables */
+-    if (sec->attributes && vals) {
+-        apr_table_t *e = r->subprocess_env;
+-        int i = 0;
+-        while (sec->attributes[i]) {
+-            char *str = apr_pstrcat(r->pool, AUTHN_PREFIX, sec->attributes[i], NULL);
+-            int j = sizeof(AUTHN_PREFIX)-1; /* string length of "AUTHENTICATE_", excluding the trailing NIL */
+-            while (str[j]) {
+-                str[j] = apr_toupper(str[j]);
+-                j++;
+-            }
+-            apr_table_setn(e, str, vals[i]);
+-
+-            /* handle remote_user_attribute, if set */
+-            if (sec->remote_user_attribute && 
+-                !strcmp(sec->remote_user_attribute, sec->attributes[i])) {
+-                r->user = (char *)apr_pstrdup(r->pool, vals[i]);
+-                remote_user_attribute_set = 1;
+-            }
+-            i++;
+-        }
+-    }
++    remote_user_attribute_set = set_request_vars(r, sec, vals, 1);
+ 
+     /* sanity check */
+     if (sec->remote_user_attribute && !remote_user_attribute_set) {
+@@ -759,6 +777,7 @@
+                     ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                                   "[%" APR_PID_T_FMT "] auth_ldap authorise: "
+                                   "require user: authorisation successful", getpid());
++                    set_request_vars(r, sec, vals, 0);
+                     return OK;
+                 }
+                 default: {
+@@ -779,6 +798,7 @@
+                         ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                                       "[%" APR_PID_T_FMT "] auth_ldap authorise: "
+                                       "require user: authorisation successful", getpid());
++                        set_request_vars(r, sec, vals, 0);
+                         return OK;
+                     }
+                     default: {
+@@ -805,6 +825,7 @@
+                     ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                                   "[%" APR_PID_T_FMT "] auth_ldap authorise: "
+                                   "require dn: authorisation successful", getpid());
++                    set_request_vars(r, sec, vals, 0);
+                     return OK;
+                 }
+                 default: {
+@@ -855,6 +876,7 @@
+                                       "[%" APR_PID_T_FMT "] auth_ldap authorise: require group: "
+                                       "authorisation successful (attribute %s) [%s][%s]",
+                                       getpid(), ent[i].name, ldc->reason, ldap_err2string(result));
++                        set_request_vars(r, sec, vals, 0);
+                         return OK;
+                     }
+                     default: {
+@@ -879,6 +901,7 @@
+                                   "[%" APR_PID_T_FMT "] auth_ldap authorise: require dynamic group: "
+                                   "authorisation successful [%s][%s]",
+                                   getpid(), ldc->reason, ldap_err2string(result));
++                    set_request_vars(r, sec, vals, 0);
+                     return OK;
+                 default:
+                     ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+@@ -912,6 +935,7 @@
+                                       0, r, "[%" APR_PID_T_FMT "] auth_ldap authorise: "
+                                       "require attribute: authorisation "
+                                       "successful", getpid());
++                        set_request_vars(r, sec, vals, 0);
+                         return OK;
+                     }
+                     default: {
+@@ -959,6 +983,7 @@
+                                       0, r, "[%" APR_PID_T_FMT "] auth_ldap authorise: "
+                                       "require ldap-filter: authorisation "
+                                       "successful", getpid());
++                        set_request_vars(r, sec, vals, 0);
+                         return OK;
+                     }
+                     case LDAP_FILTER_ERROR: {
+@@ -985,6 +1010,7 @@
+         ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                       "[%" APR_PID_T_FMT "] auth_ldap authorise: agreeing because non-restricted",
+                       getpid());
++        set_request_vars(r, sec, vals, 0);
+         return OK;
+     }
+ 

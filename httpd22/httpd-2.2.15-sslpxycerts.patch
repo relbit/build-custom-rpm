@@ -1,0 +1,15 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=720980
+
+http://svn.apache.org/viewvc?revision=417988&view=revision
+
+--- httpd-2.2.15/modules/ssl/ssl_engine_init.c.sslpxycerts
++++ httpd-2.2.15/modules/ssl/ssl_engine_init.c
+@@ -1271,6 +1271,7 @@ static void ssl_init_ctx_cleanup_proxy(m
+ 
+     if (mctx->pkp->certs) {
+         sk_X509_INFO_pop_free(mctx->pkp->certs, X509_INFO_free);
++        mctx->pkp->certs = NULL;
+     }
+ }
+ 

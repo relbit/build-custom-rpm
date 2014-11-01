@@ -1,0 +1,10 @@
+--- httpd/support/ab.c	2009/09/23 18:53:56	818203
++++ httpd/support/ab.c	2009/09/23 18:57:07	818204
+@@ -580,7 +580,6 @@
+         for (i=1; i<count; i++) {
+             cert = (X509 *)SK_VALUE(sk, i);
+             ssl_print_cert_info(bio_out, cert);
+-            X509_free(cert);
+     }
+     }
+     cert = SSL_get_peer_certificate(c->ssl);

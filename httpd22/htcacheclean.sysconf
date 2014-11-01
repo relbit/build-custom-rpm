@@ -1,0 +1,20 @@
+# Configuration file for the htcacheclean service.
+
+#
+# This options sets the cache cleaning interval in minutes.
+# Default interval of cache cleaning is every 5 minutes.
+#
+#INTERVAL=10
+
+#
+# This option sets the root of the mod_cache_disk's cache.
+# Default value is "/var/cache/mod_proxy".
+#
+#CACHE_ROOT=/var/cache/mod_proxy
+
+#
+# This option sets the cache size limit.
+# The value is expressed in bytes by default (or attaching B to the number).
+# Attach K for Kbytes or M for MBytes. Default limit is 150M.
+#
+#CACHE_LIMIT=150M

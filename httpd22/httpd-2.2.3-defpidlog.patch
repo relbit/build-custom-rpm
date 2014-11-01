@@ -1,0 +1,39 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=505002
+
+Should really ensure that DEFAULT_REL_RUNTIMEDIR gets set to "run", but
+that may be more disruptive.
+
+--- httpd-2.2.3/server/mpm/experimental/event/mpm_default.h.defpidlog
++++ httpd-2.2.3/server/mpm/experimental/event/mpm_default.h
+@@ -58,7 +58,7 @@
+ 
+ /* Where the main/parent process's pid is logged */
+ #ifndef DEFAULT_PIDLOG
+-#define DEFAULT_PIDLOG DEFAULT_REL_RUNTIMEDIR "/httpd.pid"
++#define DEFAULT_PIDLOG "run/httpd.pid"
+ #endif
+ 
+ /*
+--- httpd-2.2.3/server/mpm/prefork/mpm_default.h.defpidlog
++++ httpd-2.2.3/server/mpm/prefork/mpm_default.h
+@@ -53,7 +53,7 @@
+ 
+ /* Where the main/parent process's pid is logged */
+ #ifndef DEFAULT_PIDLOG
+-#define DEFAULT_PIDLOG DEFAULT_REL_RUNTIMEDIR "/httpd.pid"
++#define DEFAULT_PIDLOG "run/httpd.pid"
+ #endif
+ 
+ /*
+--- httpd-2.2.3/server/mpm/worker/mpm_default.h.defpidlog
++++ httpd-2.2.3/server/mpm/worker/mpm_default.h
+@@ -57,7 +57,7 @@
+ 
+ /* Where the main/parent process's pid is logged */
+ #ifndef DEFAULT_PIDLOG
+-#define DEFAULT_PIDLOG DEFAULT_REL_RUNTIMEDIR "/httpd.pid"
++#define DEFAULT_PIDLOG "run/httpd.pid"
+ #endif
+ 
+ /*

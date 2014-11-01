@@ -1,0 +1,81 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=740242
+
+--- httpd-2.2.15/modules/cache/mod_cache.c.cachehardmax
++++ httpd-2.2.15/modules/cache/mod_cache.c
+@@ -802,6 +802,11 @@ static int cache_save_filter(ap_filter_t
+             exp = date + conf->defex;
+         }
+     }
++    /* else, forcibly cap the expiry date if required */
++    else if (conf->hardmaxex && (date + conf->maxex) < exp) {
++        exp = date + conf->maxex;
++    }        
++
+     info->expire = exp;
+ 
+     /* We found a stale entry which wasn't really stale. */
+@@ -1018,6 +1023,9 @@ static void * create_cache_config(apr_po
+         ps->lockpath = apr_pstrcat(p, tmppath, DEFAULT_CACHE_LOCKPATH, NULL);
+     }
+     ps->lockmaxage = apr_time_from_sec(DEFAULT_CACHE_MAXAGE);
++    /* flag; treat maxex as hard limit */
++    ps->hardmaxex = 0;
++    ps->hardmaxex_set = 0;
+     return ps;
+ }
+ 
+@@ -1083,6 +1091,10 @@ static void * merge_cache_config(apr_poo
+         (overrides->lockmaxage_set == 0)
+         ? base->lockmaxage
+         : overrides->lockmaxage;
++    ps->hardmaxex = 
++        (overrides->hardmaxex_set == 0)
++        ? base->hardmaxex
++        : overrides->hardmaxex;
+     return ps;
+ }
+ static const char *set_cache_ignore_no_last_mod(cmd_parms *parms, void *dummy,
+@@ -1247,7 +1259,7 @@ static const char *add_cache_disable(cmd
+ }
+ 
+ static const char *set_cache_maxex(cmd_parms *parms, void *dummy,
+-                                   const char *arg)
++                                   const char *arg, const char *hard)
+ {
+     cache_server_conf *conf;
+ 
+@@ -1256,6 +1268,12 @@ static const char *set_cache_maxex(cmd_p
+                                                   &cache_module);
+     conf->maxex = (apr_time_t) (atol(arg) * MSEC_ONE_SEC);
+     conf->maxex_set = 1;
++    
++    if (hard && strcasecmp(hard, "hard") == 0) {
++        conf->hardmaxex = 1;
++        conf->hardmaxex_set = 1;
++    }
++
+     return NULL;
+ }
+ 
+@@ -1381,7 +1399,7 @@ static const command_rec cache_cmds[] =
+                   "caching is enabled"),
+     AP_INIT_TAKE1("CacheDisable", add_cache_disable, NULL, RSRC_CONF,
+                   "A partial URL prefix below which caching is disabled"),
+-    AP_INIT_TAKE1("CacheMaxExpire", set_cache_maxex, NULL, RSRC_CONF,
++    AP_INIT_TAKE12("CacheMaxExpire", set_cache_maxex, NULL, RSRC_CONF,
+                   "The maximum time in seconds to cache a document"),
+     AP_INIT_TAKE1("CacheDefaultExpire", set_cache_defex, NULL, RSRC_CONF,
+                   "The default time in seconds to cache a document"),
+--- httpd-2.2.15/modules/cache/mod_cache.h.cachehardmax
++++ httpd-2.2.15/modules/cache/mod_cache.h
+@@ -170,6 +170,9 @@ typedef struct {
+     int lockpath_set;
+     apr_time_t lockmaxage;
+     int lockmaxage_set;
++    /* treat maxex as hard limit */
++    int hardmaxex;
++    int hardmaxex_set;
+ } cache_server_conf;
+ 
+ /* cache info information */

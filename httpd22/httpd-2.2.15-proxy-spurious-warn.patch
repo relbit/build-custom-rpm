@@ -1,0 +1,20 @@
+--- httpd/modules/proxy/mod_proxy.c	2010/07/11 06:08:34	962991
++++ httpd/modules/proxy/mod_proxy.c	2010/07/11 06:21:06	962992
+@@ -1362,7 +1362,7 @@
+             if (err)
+                 return apr_pstrcat(cmd->temp_pool, "ProxyPass ", err, NULL);
+         } else {
+-            ap_log_error(APLOG_MARK, APLOG_WARNING, 0, cmd->server,
++            ap_log_error(APLOG_MARK, APLOG_INFO, 0, cmd->server,
+                          "worker %s already used by another worker", worker->name);
+         }
+         PROXY_COPY_CONF_PARAMS(worker, conf);
+@@ -1779,7 +1779,7 @@
+         if ((err = ap_proxy_add_worker(&worker, cmd->pool, conf, name)) != NULL)
+             return apr_pstrcat(cmd->temp_pool, "BalancerMember ", err, NULL);
+     } else {
+-            ap_log_error(APLOG_MARK, APLOG_WARNING, 0, cmd->server,
++            ap_log_error(APLOG_MARK, APLOG_INFO, 0, cmd->server,
+                          "worker %s already used by another worker", worker->name);
+     }
+     PROXY_COPY_CONF_PARAMS(worker, conf);

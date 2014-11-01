@@ -1,0 +1,21 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=233955
+
+(not upstream, yet)
+
+--- httpd-2.2.3/os/unix/unixd.c.graceful-ebadf
++++ httpd-2.2.3/os/unix/unixd.c
+@@ -592,6 +592,13 @@ AP_DECLARE(apr_status_t) unixd_accept(vo
+                          "select/accept error (%d)", status);
+             return APR_EGENERAL;
+ #else
++        case EBADF:
++            if (!lr->active) {
++                /* If the listening socket has been closed, don't log an
++                 * error, this is a graceful restart. */
++                return status;
++            }
++            /* else, fallthrough. */
+         default:
+             ap_log_error(APLOG_MARK, APLOG_ERR, status, ap_server_conf,
+                          "apr_socket_accept: (client socket)");

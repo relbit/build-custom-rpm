@@ -1,0 +1,28 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=572911
+
+--- httpd-2.2.15/modules/dav/main/mod_dav.c.davputfail
++++ httpd-2.2.15/modules/dav/main/mod_dav.c
+@@ -975,6 +975,7 @@ static int dav_method_put(request_rec *r
+         apr_bucket_brigade *bb;
+         apr_bucket *b;
+         int seen_eos = 0;
++        int commit;
+ 
+         bb = apr_brigade_create(r->pool, r->connection->bucket_alloc);
+ 
+@@ -1025,8 +1026,12 @@ static int dav_method_put(request_rec *r
+ 
+         apr_brigade_destroy(bb);
+ 
+-        err2 = (*resource->hooks->close_stream)(stream,
+-                                                err == NULL /* commit */);
++        /* Commit if either the resource already exists, or there was
++         * no error during reading/writing the body. */
++        commit = (resource_state == DAV_RESOURCE_EXISTS) || (err == NULL);
++
++        err2 = (*resource->hooks->close_stream)(stream, commit);
++
+         if (err2 != NULL && err == NULL) {
+             /* no error during the write, but we hit one at close. use it. */
+             err = err2;

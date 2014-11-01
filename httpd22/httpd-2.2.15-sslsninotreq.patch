@@ -1,0 +1,78 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=714704
+
+--- httpd-2.2.15/modules/ssl/ssl_engine_config.c.sslsninotreq
++++ httpd-2.2.15/modules/ssl/ssl_engine_config.c
+@@ -53,6 +53,7 @@ SSLModConfigRec *ssl_config_global_creat
+     mc = (SSLModConfigRec *)apr_palloc(pool, sizeof(*mc));
+     mc->pPool = pool;
+     mc->bFixed = FALSE;
++    mc->sni_required = FALSE;
+ 
+     /*
+      * initialize per-module configuration
+--- httpd-2.2.15/modules/ssl/ssl_engine_init.c.sslsninotreq
++++ httpd-2.2.15/modules/ssl/ssl_engine_init.c
+@@ -299,7 +299,7 @@ int ssl_init_Module(apr_pool_t *p, apr_p
+     /*
+      * Configuration consistency checks
+      */
+-    ssl_init_CheckServers(base_server, ptemp);
++    ssl_init_CheckServers(mc, base_server, ptemp);
+ 
+     /*
+      *  Announce mod_ssl and SSL library in HTTP Server field
+@@ -1033,7 +1033,7 @@ void ssl_init_ConfigureServer(server_rec
+     }
+ }
+ 
+-void ssl_init_CheckServers(server_rec *base_server, apr_pool_t *p)
++void ssl_init_CheckServers(SSLModConfigRec *mc, server_rec *base_server, apr_pool_t *p)
+ {
+     server_rec *s, *ps;
+     SSLSrvConfigRec *sc;
+@@ -1119,6 +1119,7 @@ void ssl_init_CheckServers(server_rec *b
+     }
+ 
+     if (conflict) {
++        mc->sni_required = TRUE;
+         ap_log_error(APLOG_MARK, APLOG_WARNING, 0, base_server,
+ #ifdef OPENSSL_NO_TLSEXT
+                      "Init: You should not use name-based "
+--- httpd-2.2.15/modules/ssl/ssl_engine_kernel.c.sslsninotreq
++++ httpd-2.2.15/modules/ssl/ssl_engine_kernel.c
+@@ -117,6 +117,7 @@ int ssl_hook_ReadReq(request_rec *r)
+         return DECLINED;
+     }
+ #ifndef OPENSSL_NO_TLSEXT
++    if (myModConfig(r->server)->sni_required) {
+     if ((servername = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name))) {
+         char *host, *scope_id;
+         apr_port_t port;
+@@ -160,6 +161,7 @@ int ssl_hook_ReadReq(request_rec *r)
+                      " virtual host");
+         return HTTP_FORBIDDEN;
+     }
++    }
+ #endif
+     SSL_set_app_data2(ssl, r);
+ 
+--- httpd-2.2.15/modules/ssl/ssl_private.h.sslsninotreq
++++ httpd-2.2.15/modules/ssl/ssl_private.h
+@@ -398,6 +398,7 @@ typedef struct {
+     struct {
+         void *pV1, *pV2, *pV3, *pV4, *pV5, *pV6, *pV7, *pV8, *pV9, *pV10;
+     } rCtx;
++    BOOL            sni_required;
+ } SSLModConfigRec;
+ 
+ /** public cert/private key */
+@@ -566,7 +567,7 @@ const char  *ssl_cmd_SSLProxyCheckPeerCN
+ int          ssl_init_Module(apr_pool_t *, apr_pool_t *, apr_pool_t *, server_rec *);
+ void         ssl_init_Engine(server_rec *, apr_pool_t *);
+ void         ssl_init_ConfigureServer(server_rec *, apr_pool_t *, apr_pool_t *, SSLSrvConfigRec *);
+-void         ssl_init_CheckServers(server_rec *, apr_pool_t *);
++void         ssl_init_CheckServers(SSLModConfigRec *mc, server_rec *, apr_pool_t *);
+ STACK_OF(X509_NAME) 
+             *ssl_init_FindCAList(server_rec *, apr_pool_t *, const char *, const char *);
+ void         ssl_init_Child(apr_pool_t *, server_rec *);

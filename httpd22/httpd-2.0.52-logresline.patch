@@ -1,0 +1,16 @@
+
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=207071
+
+Upstream-Status: needed
+
+--- httpd-2.0.52/support/logresolve.c.logresline
++++ httpd-2.0.52/support/logresolve.c
+@@ -91,7 +91,7 @@
+ 
+ /* maximum line length */
+ #ifndef MAXLINE
+-#define MAXLINE 1024
++#define MAXLINE 10240
+ #endif
+ 
+ /* maximum length of a domain name */

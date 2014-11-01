@@ -1,0 +1,67 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=684144
+
+This patch is a subset of:
+
+http://svn.apache.org/viewvc?view=revision&revision=963430
+
+the minimum sufficient to enable operation with FIPS enabled
+in OpenSSL; omits the SSLFIPS directive (which does nothing
+useful).
+
+--- httpd-2.2.15/modules/ssl/ssl_engine_init.c.sslfips
++++ httpd-2.2.15/modules/ssl/ssl_engine_init.c
+@@ -79,12 +79,23 @@ static int ssl_tmp_key_init_rsa(server_r
+ {
+     SSLModConfigRec *mc = myModConfig(s);
+ 
++#ifdef HAVE_FIPS
++    if (FIPS_mode() && bits < 1024) {
++        mc->pTmpKeys[idx] = NULL;
++        ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,
++                     "Init: Skipping generating temporary "
++                     "%d bit RSA private key in FIPS mode", bits);
++        return OK;
++    }
++#endif
++
+     if (!(mc->pTmpKeys[idx] =
+           RSA_generate_key(bits, RSA_F4, NULL, NULL)))
+     {
+         ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,
+                      "Init: Failed to generate temporary "
+                      "%d bit RSA private key", bits);
++        ssl_log_ssl_error(APLOG_MARK, APLOG_ERR, s);
+         return !OK;
+     }
+ 
+@@ -96,6 +107,16 @@ static int ssl_tmp_key_init_dh(server_re
+ {
+     SSLModConfigRec *mc = myModConfig(s);
+ 
++#ifdef HAVE_FIPS
++    if (FIPS_mode() && bits < 1024) {
++        mc->pTmpKeys[idx] = NULL;
++        ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,
++                     "Init: Skipping generating temporary "
++                     "%d bit DH parameters in FIPS mode", bits);
++        return OK;
++    }
++#endif
++
+     if (!(mc->pTmpKeys[idx] =
+           ssl_dh_GetTmpParam(bits)))
+     {
+--- httpd-2.2.15/modules/ssl/ssl_toolkit_compat.h.sslfips
++++ httpd-2.2.15/modules/ssl/ssl_toolkit_compat.h
+@@ -141,6 +141,10 @@ typedef int (modssl_read_bio_cb_fn)(char
+ 
+ #define HAVE_SSL_X509V3_EXT_d2i
+ 
++#if (OPENSSL_VERSION_NUMBER >= 0x009080a0) && defined(OPENSSL_FIPS)
++#define HAVE_FIPS
++#endif
++
+ #ifndef PEM_F_DEF_CALLBACK
+ #ifdef PEM_F_PEM_DEF_CALLBACK
+ /** In OpenSSL 0.9.8 PEM_F_DEF_CALLBACK was renamed */

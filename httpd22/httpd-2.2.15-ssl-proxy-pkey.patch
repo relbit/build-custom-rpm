@@ -1,0 +1,28 @@
+diff --git a/modules/ssl/ssl_engine_init.c b/modules/ssl/ssl_engine_init.c
+index 7ecaa65..f736e7e 100644
+--- a/modules/ssl/ssl_engine_init.c
++++ b/modules/ssl/ssl_engine_init.c
+@@ -974,7 +974,7 @@ static void ssl_init_proxy_certs(server_rec *s,
+     for (n = 0; n < ncerts; n++) {
+         X509_INFO *inf = sk_X509_INFO_value(sk, n);
+ 
+-        if (!inf->x509 || !inf->x_pkey) {
++        if (!inf->x509 || !inf->x_pkey || !inf->x_pkey->dec_pkey) {
+             sk_X509_INFO_free(sk);
+             ap_log_error(APLOG_MARK, APLOG_STARTUP, 0, s,
+                          "incomplete client cert configured for SSL proxy "
+@@ -982,6 +982,14 @@ static void ssl_init_proxy_certs(server_rec *s,
+             ssl_die();
+             return;
+         }
++        
++        if (X509_check_private_key(inf->x509, inf->x_pkey->dec_pkey) != 1) {
++            ap_log_error(APLOG_MARK, APLOG_STARTUP, 0, s,
++                           "proxy client certificate and "
++                           "private key do not match");
++            ssl_die();
++            return;
++        }
+     }
+ 
+     ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, s,

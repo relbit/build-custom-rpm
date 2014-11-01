@@ -1,0 +1,97 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=552942
+https://bugzilla.redhat.com/show_bug.cgi?id=594980
+
+http://svn.apache.org/viewvc?view=revision&revision=946240
+
+--- httpd-2.2.15/modules/ssl/ssl_engine_vars.c.ssloidval
++++ httpd-2.2.15/modules/ssl/ssl_engine_vars.c
+@@ -807,7 +807,8 @@ const char *ssl_ext_lookup(apr_pool_t *p
+         if (OBJ_cmp(ext->object, oid) == 0) {
+             BIO *bio = BIO_new(BIO_s_mem());
+ 
+-            if (X509V3_EXT_print(bio, ext, 0, 0) == 1) {
++            if (X509V3_EXT_print(bio, ext, 0, 0) == 1 ||
++                ASN1_STRING_print(bio, ext->value) == 1) {
+                 BUF_MEM *buf;
+ 
+                 BIO_get_mem_ptr(bio, &buf);
+--- httpd-2.2.15/modules/ssl/ssl_expr_eval.c.ssloidval
++++ httpd-2.2.15/modules/ssl/ssl_expr_eval.c
+@@ -198,6 +198,27 @@ static char *ssl_expr_eval_word(request_
+     }
+ }
+ 
++/* For an extension type which OpenSSL does not recognize, attempt to
++ * parse the extension type as a primitive string.  This will fail for
++ * any structured extension type per the docs.  Returns non-zero on
++ * success and writes the string to the given bio. */
++static int dump_extn_value(BIO *bio, ASN1_OCTET_STRING *str)
++{
++    const unsigned char *pp = str->data;
++    ASN1_STRING *ret = ASN1_STRING_new();
++    int rv = 0;
++    
++    /* This allows UTF8String, IA5String, VisibleString, or BMPString;
++     * conversion to UTF-8 is forced. */
++    if (d2i_DISPLAYTEXT(&ret, &pp, str->length)) {
++        ASN1_STRING_print_ex(bio, ret, ASN1_STRFLGS_UTF8_CONVERT);
++        rv = 1;
++    }
++
++    ASN1_STRING_free(ret);
++    return rv;
++}
++
+ #define NUM_OID_ELTS 8 /* start with 8 oid slots, resize when needed */
+ 
+ apr_array_header_t *ssl_extlist_by_oid(request_rec *r, const char *oidstr)
+@@ -214,6 +235,8 @@ apr_array_header_t *ssl_extlist_by_oid(r
+ 
+     /* Determine the oid we are looking for */
+     if ((oid = OBJ_txt2obj(oidstr, 1)) == NULL) {
++        ap_log_cerror(APLOG_MARK, APLOG_DEBUG, 0, r->connection,
++                      "could not parse OID '%s'", oidstr);
+         ERR_clear_error();
+         return NULL;
+     }
+@@ -221,10 +244,11 @@ apr_array_header_t *ssl_extlist_by_oid(r
+     /* are there any extensions in the cert? */
+     if ((xs = SSL_get_peer_certificate(sslconn->ssl)) == NULL ||
+         (count = X509_get_ext_count(xs)) == 0) {
++        ASN1_OBJECT_free(oid);
+         return NULL;
+     }
+ 
+-    val_array = apr_array_make(r->pool, NUM_OID_ELTS, sizeof(char *));
++    val_array = apr_array_make(r->pool, count, sizeof(char *));
+ 
+     /* Loop over all extensions, extract the desired oids */
+     for (j = 0; j < count; j++) {
+@@ -233,19 +257,25 @@ apr_array_header_t *ssl_extlist_by_oid(r
+         if (OBJ_cmp(ext->object, oid) == 0) {
+             BIO *bio = BIO_new(BIO_s_mem());
+ 
+-            if (X509V3_EXT_print(bio, ext, 0, 0) == 1) {
++            if (X509V3_EXT_print(bio, ext, 0, 0) == 1
++                || dump_extn_value(bio, X509_EXTENSION_get_data(ext)) == 1) {
+                 BUF_MEM *buf;
+                 char **new = apr_array_push(val_array);
+ 
+                 BIO_get_mem_ptr(bio, &buf);
+ 
+                 *new = apr_pstrmemdup(r->pool, buf->data, buf->length);
++            } else {
++                ap_log_cerror(APLOG_MARK, APLOG_DEBUG, 0, r->connection,
++                              "Found an extension '%s', but failed to "
++                              "create a string from it", oidstr);
+             }
+ 
+             BIO_vfree(bio);
+         }
+     }
+ 
++    ASN1_OBJECT_free(oid);
+     X509_free(xs);
+     ERR_clear_error();
+ 

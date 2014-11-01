@@ -1,0 +1,13 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=240844
+
+--- httpd-2.2.3/docs/conf/magic.pngmagic
++++ httpd-2.2.3/docs/conf/magic
+@@ -380,3 +380,7 @@
+ 4   string      moov        video/quicktime
+ 4   string      mdat        video/quicktime
+ 
++# PNG [Portable Network Graphics, or "PNG's Not GIF"] images
++#
++# 137 P N G \r \n ^Z \n [4-byte length] H E A D [HEAD data] [HEAD crc] ...
++0   string      \211PNG\015      image/png

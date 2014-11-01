@@ -1,0 +1,30 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=486941
+
+--- httpd-2.2.3/modules/filters/mod_ext_filter.c.extfiltereos
++++ httpd-2.2.3/modules/filters/mod_ext_filter.c
+@@ -67,6 +67,7 @@ typedef struct ef_ctx_t {
+     ef_dir_t *dc;
+     ef_filter_t *filter;
+     int noop;
++    int hit_eos;
+ #if APR_FILES_AS_SOCKETS
+     apr_pollset_t *pollset;
+ #endif
+@@ -832,6 +833,7 @@ static int ef_unified_filter(ap_filter_t
+     if (eos) {
+         b = apr_bucket_eos_create(c->bucket_alloc);
+         APR_BRIGADE_INSERT_TAIL(bb, b);
++        ctx->hit_eos = 1;
+     }
+ 
+     return APR_SUCCESS;
+@@ -881,7 +883,7 @@ static int ef_input_filter(ap_filter_t *
+         ctx = f->ctx;
+     }
+ 
+-    if (ctx->noop) {
++    if (ctx->noop || ctx->hit_eos) {
+         ap_remove_input_filter(f);
+         return ap_get_brigade(f->next, bb, mode, block, readbytes);
+     }

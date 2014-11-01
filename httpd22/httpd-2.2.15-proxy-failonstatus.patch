@@ -1,0 +1,111 @@
+Index: modules/proxy/mod_proxy_balancer.c
+===================================================================
+--- modules/proxy/mod_proxy_balancer.c	(revision 1005570)
++++ modules/proxy/mod_proxy_balancer.c	(revision 1005571)
+@@ -591,7 +591,6 @@
+                                        proxy_server_conf *conf)
+ {
+ 
+-#if 0
+     apr_status_t rv;
+ 
+     if ((rv = PROXY_THREAD_LOCK(balancer)) != APR_SUCCESS) {
+@@ -600,8 +599,20 @@
+             balancer->name);
+         return HTTP_INTERNAL_SERVER_ERROR;
+     }
+-    /* TODO: placeholder for post_request actions
+-     */
++    if (!apr_is_empty_array(balancer->errstatuses)) {
++        int i;
++        for (i = 0; i < balancer->errstatuses->nelts; i++) {
++            int val = ((int *)balancer->errstatuses->elts)[i];
++            if (r->status == val) {
++                ap_log_error(APLOG_MARK, APLOG_ERR, rv, r->server,
++                             "proxy: BALANCER: (%s).  Forcing recovery for worker (%s), failonstatus %d",
++                             balancer->name, worker->name, val);
++                worker->s->status |= PROXY_WORKER_IN_ERROR;
++                worker->s->error_time = apr_time_now();
++                break;
++            }
++        }
++    }
+ 
+     if ((rv = PROXY_THREAD_UNLOCK(balancer)) != APR_SUCCESS) {
+         ap_log_error(APLOG_MARK, APLOG_ERR, rv, r->server,
+@@ -611,8 +622,6 @@
+     ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, r->server,
+                  "proxy_balancer_post_request for (%s)", balancer->name);
+ 
+-#endif
+-
+     if (worker && worker->s->busy)
+         worker->s->busy--;
+ 
+Index: modules/proxy/mod_proxy.c
+===================================================================
+--- modules/proxy/mod_proxy.c	(revision 1005570)
++++ modules/proxy/mod_proxy.c	(revision 1005571)
+@@ -365,6 +365,28 @@
+         else
+             return "scolonpathdelim must be On|Off";
+     }
++    else if (!strcasecmp(key, "failonstatus")) {
++        char *val_split;
++        char *status;
++        char *tok_state;
++
++        val_split = apr_pstrdup(p, val);
++
++        balancer->errstatuses = apr_array_make(p, 1, sizeof(int));
++
++        status = apr_strtok(val_split, ", ", &tok_state);
++        while (status != NULL) {
++            ival = atoi(status);
++            if (ap_is_HTTP_VALID_RESPONSE(ival)) {
++                *(int *)apr_array_push(balancer->errstatuses) = ival;
++            }
++            else {
++                return "failonstatus must be one or more HTTP response codes";
++            }
++            status = apr_strtok(NULL, ", ", &tok_state);
++        }
++
++    }
+     else {
+         return "unknown Balancer parameter";
+     }
+Index: modules/proxy/mod_proxy.h
+===================================================================
+--- modules/proxy/mod_proxy.h	(revision 1005570)
++++ modules/proxy/mod_proxy.h	(revision 1005571)
+@@ -386,6 +386,8 @@
+ #endif
+     void            *context;   /* general purpose storage */
+     int             scolonsep;  /* true if ';' seps sticky session paths */
++
++    apr_array_header_t *errstatuses; /* statuses to force members into error */
+ };
+ 
+ struct proxy_balancer_method {
+Index: include/ap_mmn.h
+===================================================================
+--- include/ap_mmn.h	(revision 1005570)
++++ include/ap_mmn.h	(revision 1005571)
+@@ -139,6 +139,7 @@
+  * 20051115.23 (2.2.12) Add ap_open_piped_log_ex API, with cmdtype option,
+  *                      and conditional cmdtype member of piped_log struct
+  * 20051115.24 (2.2.15) Add forward member to proxy_conn_rec
++ * 20051115.25 (2.2.17) Add errstatuses member to proxy_balancer
+  */
+ 
+ #define MODULE_MAGIC_COOKIE 0x41503232UL /* "AP22" */
+@@ -146,7 +147,7 @@
+ #ifndef MODULE_MAGIC_NUMBER_MAJOR
+ #define MODULE_MAGIC_NUMBER_MAJOR 20051115
+ #endif
+-#define MODULE_MAGIC_NUMBER_MINOR 24                    /* 0...n */
++#define MODULE_MAGIC_NUMBER_MINOR 25                    /* 0...n */
+ 
+ /**
+  * Determine if the server's current MODULE_MAGIC_NUMBER is at least a

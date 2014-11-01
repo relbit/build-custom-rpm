@@ -1,0 +1,22 @@
+
+http://svn.apache.org/viewvc?view=revision&revision=1157105
+https://bugzilla.redhat.com/show_bug.cgi?id=729585
+
+--- httpd-2.2.15/modules/ssl/ssl_engine_config.c.sslbadcdev
++++ httpd-2.2.15/modules/ssl/ssl_engine_config.c
+@@ -511,12 +511,11 @@ const char *ssl_cmd_SSLCryptoDevice(cmd_
+               "'builtin' (none)";
+         e = ENGINE_get_first();
+         while (e) {
+-            ENGINE *en;
+             err = apr_pstrcat(cmd->pool, err, ", '", ENGINE_get_id(e),
+                                          "' (", ENGINE_get_name(e), ")", NULL);
+-            en = ENGINE_get_next(e);
+-            ENGINE_free(e);
+-            e = en;
++            /* Iterate; this call implicitly decrements the refcount
++             * on the 'old' e, per the docs in engine.h. */
++            e = ENGINE_get_next(e);
+         }
+         return err;
+     }

@@ -1,0 +1,18 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=840845
+
+http://svn.apache.org/viewvc?view=revision&revision=965824
+
+--- httpd-2.2.3/modules/http/http_filters.c.r965824
++++ httpd-2.2.3/modules/http/http_filters.c
+@@ -153,8 +153,9 @@ static apr_status_t get_remaining_chunk_
+     if (lineend[len - 1] != APR_ASCII_LF) {
+         return APR_EAGAIN;
+     }
+-    /* Line is complete. So reset ctx->linesize for next round. */
++    /* Line is complete. So reset ctx for next round. */
+     ctx->linesize = 0;
++    ctx->pos = ctx->chunk_ln;
+     return APR_SUCCESS;
+ }
+ 

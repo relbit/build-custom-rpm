@@ -1,0 +1,18 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=700074
+
+http://svn.apache.org/viewvc?rev=1069427&view=rev
+
+--- httpd-2.2.15/modules/ssl/ssl_engine_io.c.sslproxyio
++++ httpd-2.2.15/modules/ssl/ssl_engine_io.c
+@@ -752,6 +752,10 @@ static apr_status_t ssl_io_input_getline
+         status = ssl_io_input_read(inctx, buf + offset, &tmplen);
+ 
+         if (status != APR_SUCCESS) {
++            if (APR_STATUS_IS_EAGAIN(status) && (*len > 0)) {
++                /* Save the part of the line we already got */
++                char_buffer_write(&inctx->cbuf, buf, *len);
++            }
+             return status;
+         }
+ 

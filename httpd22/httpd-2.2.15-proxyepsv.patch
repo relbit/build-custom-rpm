@@ -1,0 +1,34 @@
+
+https://bugzilla.redhat.com/show_bug.cgi?id=737960
+
+--- httpd-2.2.15/modules/proxy/mod_proxy_ftp.c.proxyepsv
++++ httpd-2.2.15/modules/proxy/mod_proxy_ftp.c
+@@ -1250,7 +1250,11 @@ static int proxy_ftp_handler(request_rec
+                        "proxy: FTP: EPSV contacting remote host on port %d",
+                              data_port);
+ 
+-                if ((rv = apr_socket_create(&data_sock, connect_addr->family, SOCK_STREAM, 0, r->pool)) != APR_SUCCESS) {
++                rv = apr_socket_addr_get(&data_addr, APR_REMOTE, sock);
++                if (rv == APR_SUCCESS) {
++                    rv = apr_socket_create(&data_sock, data_addr->family, SOCK_STREAM, 0, r->pool);
++                }
++                if (rv != APR_SUCCESS) {
+                     ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
+                                   "proxy: FTP: error creating EPSV socket");
+                     proxy_ftp_cleanup(r, backend);
+@@ -1273,10 +1277,11 @@ static int proxy_ftp_handler(request_rec
+                 }
+ 
+                 /* make the connection */
+-                apr_socket_addr_get(&data_addr, APR_REMOTE, sock);
+-                apr_sockaddr_ip_get(&data_ip, data_addr);
+-                apr_sockaddr_info_get(&epsv_addr, data_ip, connect_addr->family, data_port, 0, p);
+-                rv = apr_socket_connect(data_sock, epsv_addr);
++                rv = apr_sockaddr_ip_get(&data_ip, data_addr);
++                if (rv == APR_SUCCESS)
++                    apr_sockaddr_info_get(&epsv_addr, data_ip, data_addr->family, data_port, 0, p);
++                if (rv == APR_SUCCESS)
++                    rv = apr_socket_connect(data_sock, epsv_addr);
+                 if (rv != APR_SUCCESS) {
+                     ap_log_error(APLOG_MARK, APLOG_ERR, rv, r->server,
+                                  "proxy: FTP: EPSV attempt to connect to %pI failed - Firewall/NAT?", epsv_addr);
