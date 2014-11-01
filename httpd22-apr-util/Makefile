@@ -8,6 +8,8 @@ RPM_URL         = https://archive.apache.org/dist/apr/$(RPM_SOURCE0)
 
 RPM_SOURCES	= apr-util-1.2.7-pkgconf.patch apr-util-1.3.7-nodbmdso.patch
 
+RPM_BUILD_DEP	= httpd22-apr install;
+
 # Makefile internals from here on:
 
 MAKEDIR = $(shell pwd)/../.make/

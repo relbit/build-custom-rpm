@@ -45,6 +45,8 @@ RPM_SOURCES	= htcacheclean.init htcacheclean.sysconf \
 		  httpd.sysconf index.html manual.conf README.confd ssl.conf \
 		  welcome.conf
 
+RPM_BUILD_DEP	= httpd22-apr-util install;
+
 # Makefile internals from here on:
 
 MAKEDIR = $(shell pwd)/../.make/
