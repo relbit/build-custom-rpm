@@ -2,7 +2,7 @@ RPM_NAME         = hhvm
 RPM_SUMMARY      = HipHop VM (HHVM) is a virtual machine for executing programs written in PHP
 RPM_LICENSE      = PHP(Zend)
 RPM_VERSION      = 3.3
-RPM_RELEASE      = 1
+RPM_RELEASE      = 2
 RPM_SOURCE0      = $(RPM_NAME)-$(RPM_VERSION).tar.gz
 RPM_SOURCE_ISGIT = 1
 RPM_URL          = https://github.com/facebook/$(RPM_NAME).git
@@ -11,7 +11,7 @@ RPM_GIT_AFTERCMD = pushd hhvm $(SILENTOUT) && \
                    git submodule update --init --recursive && \
                    popd $(SILENTOUT)
 
-#RPM_SOURCES	 = hhvm.sysconfig
+RPM_SOURCES	 = appsample.hdf appsample.php.ini hhvm@.service
 
 RPM_BUILD_DEP    = libglog install
 #RPM_BUILD_DEP    = libglog install; oniguruma install

@@ -11,11 +11,9 @@ Source0:        RPM_SOURCE0
 Distribution:   RPM_DISTRIBUTION
 Packager:       RPM_PACKAGER
 
-%define hhvm_dir %{_var}/hhvm
-%define hhvm_user hhvm
-%global _enable_debug_package 0
-%global debug_package %{nil}
-%global __os_install_post /usr/lib/rpm/brp-compress %{nil}
+Source1:	appsample.hdf
+Source2:	appsample.php.ini
+Source3:	hhvm@.service
 
 Group:          Development/Compiler
 BuildRequires:	llvm-devel
@@ -27,6 +25,9 @@ BuildRequires:	elfutils-libelf-devel, libdwarf-devel, libcap-devel
 BuildRequires:	binutils-devel, ImageMagick-c++-devel, ImageMagick-devel
 BuildRequires:	libyaml-devel, libvpx-devel, libpng-devel, sqlite-devel
 BuildRequires:	gperftools-libs, lz4-devel libzip-devel
+BuildRequires:	systemd-units
+
+Requires:	systemd-units
 
 %description
 HipHop VM (HHVM) is a new open-source virtual machine designed for executing 
@@ -57,7 +58,6 @@ rm -rf $RPM_BUILD_ROOT
 find %{buildroot}
 
 # Create default directories
-%{__mkdir} -p %{buildroot}%{_var}/run/%{name}
 
 # Cleanup
 %{__rm} -f %{buildroot}%{_includedir}/zip.h
@@ -65,18 +65,35 @@ find %{buildroot}
 %{__rm} -f %{buildroot}/usr/lib/libzip.a
 %{__rm} -f %{buildroot}/usr/lib/libzip.so
 
+%{__install} -D -m 0644 %{SOURCE1} ${RPM_BUILD_ROOT}%{_sysconfdir}/hhvm/appsample.hdf
+%{__install} -D -m 0644 %{SOURCE2} ${RPM_BUILD_ROOT}%{_sysconfdir}/hhvm/appsample.php.ini
+%{__install} -D -m 0644 %{SOURCE3} ${RPM_BUILD_ROOT}%{_unitdir}/hhvm@.service
+%{__mkdir_p} ${RPM_BUILD_ROOT}%{_localstatedir}/log/%{name}/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
+if [ $1 -eq 1 ] ; then
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
 
 %preun
+for i in `/bin/systemctl list-units | grep hhvm | grep service | grep running | awk '{ print $1; }'`; do
+	/bin/systemctl stop $i;
+done;
+
+%postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %files
 %defattr(-,root,root,-)
-%dir %{_var}/run/%{name}
 %{_bindir}/hhvm
 %{_bindir}/hphpize
+%{_unitdir}/%{name}@.service
+%config %dir %{_sysconfdir}/%{name}/
+%config %{_sysconfdir}/%{name}/*
+%dir %{_localstatedir}/log/%{name}/
+
 
 %doc CONTRIBUTING.md LICENSE.PHP LICENSE.ZEND README.md hphp/NEWS 
