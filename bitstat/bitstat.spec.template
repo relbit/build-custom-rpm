@@ -41,6 +41,8 @@ Requires: rubygem(bson_ext) >= 1.10.1
 Requires: rubygem(bson_ext) < 1.11.0
 Requires: rubygem(pry) >= 0.10.0
 Requires: rubygem(pry) < 0.11.0
+Requires: rubygem(thread) >= 0.1.4
+Requires: rubygem(thread) < 0.2.0
 
 %description
 %{name}
