@@ -283,16 +283,18 @@ rm -Rf %{buildroot}%{_prefix}/share/pear/.*[^..]
 
 
 %post fpm
-ln -s /etc/%{phpname}/init.d/php-fpm /etc/init.d/%{phpname}-fpm
-mkdir -p /opt/%{phpname}/var/run
-/sbin/chkconfig --add %{phpname}-fpm
+if [ "$1" == "1" ]; then
+  [ ! -f /etc/init.d/%{phpname}-fpm ] && ln -s /etc/%{phpname}/init.d/php-fpm /etc/init.d/%{phpname}-fpm
+  mkdir -p /opt/%{phpname}/var/run
+  /sbin/chkconfig --add %{phpname}-fpm
+fi
 
 %preun fpm
-if [ $1 = 0 ]; then
+if [ "$1" == "0" ]; then
   /sbin/service %{phpname}-fpm stop >/dev/null 2>&1 || :
   /sbin/chkconfig --del %{phpname}-fpm
-fi
-if [ -e /etc/init.d/%{phpname}-fpm ]; then
-  rm -f /etc/init.d/%{phpname}-fpm
+  if [ -e /etc/init.d/%{phpname}-fpm ]; then
+    rm -f /etc/init.d/%{phpname}-fpm
+  fi
 fi
 
