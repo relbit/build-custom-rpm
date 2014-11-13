@@ -20,6 +20,7 @@ RPM_BUILD_DEP   = php install		RPM_NAME=$(RPM_PHP_NAME)     RPM_VERSION=$(RPM_PH
 		php-pecl-turbo_realpath	RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); \
 		php-extra-ioncube	RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); \
 		php-pecl-ZendOpcache	RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION); \
+		php-pecl-imagick	RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION)
 		php-pecl-APCu		RPM_PHP_NAME=$(RPM_PHP_NAME) RPM_PHP_VERSION=$(RPM_PHP_VERSION)
 
 # Makefile internals from here on:
