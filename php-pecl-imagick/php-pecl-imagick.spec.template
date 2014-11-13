@@ -29,7 +29,7 @@ PHP Language - PECL %{extname} %{version}
 
 %prep
 
-%setup -D -q -n %{extname}-%{version}
+%setup -q -n %{extname}-%{version}
 
 
 %build

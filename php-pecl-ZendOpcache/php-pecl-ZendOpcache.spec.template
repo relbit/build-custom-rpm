@@ -27,7 +27,7 @@ PHP Language - PECL %{extname} %{version}
 
 %prep
 
-%setup -D -q -n %{sourcen0}
+%setup -q -n %{sourcen0}
 
 
 %build
