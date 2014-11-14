@@ -280,6 +280,9 @@ lock_yum:
 unlock_yum:
 	$V$(UNLOCK_YUM)
 
+getver:
+	$Vecho $(RPM_VERSION)
+
 help:
 	$(HELP)"Evia RPM Build Root\n"
 	$(HELP)"\tName:\t\t$(RPM_NAME)\n"
@@ -295,6 +298,7 @@ help:
 	$(HELP)"\tinstall\t	Install package(s)\n"
 	$(HELP)"\tuninstall	Uninstall package(s), asks interactively\n"
 	$(HELP)"\tclean		Clean the build root of this package\n"
+	$(HELP)"\tgetver	Get package version"
 	$(HELP)"\thelp\n"
 	$(HELP)"\t\n"
 	$(HELP)"Resulting RPM files will be found in:\n"

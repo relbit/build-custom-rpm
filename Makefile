@@ -71,6 +71,12 @@ new:
 	cp -f _skel/spec.template.$$RULESTYPE $$RPM_NAME/$$RPM_NAME.spec.template;
 	$Vecho "[Done] You must complete $(RPM_NAME)/$(RPM_NAME).spec.template now."
 
+list:
+	$Vfor package in `find . -maxdepth 1 -type d | sed -e "s/^\.\///g" | grep -vP "^\." | grep -vP "^\_" | sort`; do \
+		version=`cat $$package/Makefile | grep -P "^\s*RPM_VERSION" | sed -s "s/^.*\=//g"`; \
+		printf "%-30s %10s\n" "$$package" "$$version"; \
+	done
+
 help:
 	$(HELP)"Evia RPM Build Root\n"
 	$(HELP)"\t\n"
@@ -78,6 +84,7 @@ help:
 	$(HELP)"\t[VERBOSE=1]	Verbose operation\n"
 	$(HELP)"\t\n"
 	$(HELP)"Global make targets\n"
+	$(HELP)"\tlist		List packages and their versions"
 	$(HELP)"\tbuild		Build all packages\n"
 	$(HELP)"\tinstall\t	Install all packages\n"
 	$(HELP)"\tuninstall	Uninstall all packages, asks!\n"
@@ -89,3 +96,4 @@ help:
 	$(HELP)"\tcd <your package>\n"
 	$(HELP)"\tmake help\n"
 
+.DEFAULT_GOAL := help
